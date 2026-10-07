@@ -4,7 +4,7 @@ comes from the RENTCAST_API_KEY repository secret and never reaches the browser.
 
 Budget: RentCast's free plan allows 50 requests a month. Each run uses at most
 MAX_PAGES requests (500 listings each)."""
-import json, os, statistics, sys, urllib.parse, urllib.request
+import json, os, statistics, sys, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 
 API = "https://api.rentcast.io/v1/listings/rental/long-term"
@@ -29,9 +29,14 @@ def fetch(key):
     for page in range(MAX_PAGES):
         q = urllib.parse.urlencode({"city": "New York", "state": "NY", "status": "Active",
                                     "limit": 500, "offset": page * 500})
-        req = urllib.request.Request(f"{API}?{q}", headers={"X-Api-Key": key, "Accept": "application/json"})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            batch = json.load(r)
+        req = urllib.request.Request(f"{API}?{q}", headers={"X-Api-Key": key.strip(), "Accept": "application/json",
+                                                         "User-Agent": "APT-listings/1.0 (+https://the-apt.world)"})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                batch = json.load(r)
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", "replace")[:500]
+            sys.exit(f"RentCast returned HTTP {e.code}: {body}")
         rows += batch
         if len(batch) < 500:
             break
