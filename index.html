@@ -269,11 +269,15 @@ textarea.field{width:100%;min-height:96px;border:1px solid var(--line);backgroun
 
 .sources{margin-top:18px;font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
 .sources a{color:var(--ink);text-underline-offset:3px}
+.deal.live .dp::after{content:"Illustration · source has no photos";position:absolute;left:10px;bottom:10px;background:rgba(10,12,10,.6);color:#fff;font:400 11px/1 var(--label);letter-spacing:.04em;padding:5px 7px}
+.deal.ad{background:var(--surface);border-style:dashed;justify-content:center;align-items:flex-start;padding:22px;gap:10px;text-decoration:none;color:var(--ink)}
+.deal.ad .eyebrow{color:var(--muted)}
 .deals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
 @media (max-width:1100px){.deals{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:800px){.deals{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:480px){.deals{grid-template-columns:1fr}}
 .deal{background:var(--raised);border:1px solid var(--line);display:flex;flex-direction:column;min-width:0;text-align:left;padding:0;cursor:pointer;transition:transform .2s,border-color .2s}
+a.deal{color:var(--ink);text-decoration:none}
 .deal:hover{transform:translateY(-2px);border-color:var(--ink)}
 .deal .dp{position:relative;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--surface)}
 .deal .dp svg{position:absolute;inset:0;width:100%;height:100%}
@@ -459,6 +463,8 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
 /* Fill these in to get paid: a Stripe Payment Link for Premium, and an Amazon Associates tag for guide links. */
 const PAY = { premiumUrl: '', premiumPrice: 19 };
 const AFF = { amazonTag: '' };
+/* Sponsored slot in the deals grid. Set contact to an email or page URL to start selling it. */
+const ADS = { contact: '' };
 const shop = q => `https://www.amazon.com/s?k=${encodeURIComponent(q)}${AFF.amazonTag?`&tag=${encodeURIComponent(AFF.amazonTag)}`:''}`;
 /* ===================== MARKETS ===================== */
 const MARKETS = {
@@ -777,9 +783,33 @@ const DEALS=[
  {id:'bassett',under:200,f:['Price cut twice','3 min to transit','Room to negotiate']}
 ];
 function sourcesHTML(){return `<span class="eyebrow">Search the sources yourself</span>${(M.find||[]).map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`).join('')}`;}
+let LIVE=null;
+async function loadLive(){
+  try{const r=await fetch('data/listings.json',{cache:'no-store'}); if(!r.ok)return; const j=await r.json(); if(!j.listings||!j.listings.length)return; LIVE=j;
+    MARKETS.newyork.count=j.analyzed||MARKETS.newyork.count; renderDeals(); renderMarketing();}catch(e){}
+}
+function liveCard(x,i){
+  const keys=Object.keys(ART); const k=keys[i%keys.length]; const plain=v=>'$'+Math.round(v).toLocaleString('en-US');
+  const name=x.address+(x.unit?' '+x.unit:''); const f=[`${x.beds===0?'Studio':x.beds+' bed'}`, x.baths?`${x.baths} bath`:null, x.sqft?`${x.sqft.toLocaleString()} sqft`:null, x.cuts?`Price cut${x.cuts>1?' ×'+x.cuts:''}`:null, x.built?`Built ${x.built}`:null].filter(Boolean).slice(0,4);
+  const tag=x.officeSite?'a':'div'; const href=x.officeSite?` href="${esc(/^https?:/.test(x.officeSite)?x.officeSite:'https://'+x.officeSite)}" target="_blank" rel="noopener"`:'';
+  return `<${tag} class="deal live"${href} aria-label="${esc(name)}">
+    <div class="dp">${pic(k,L[0].photo)}<span class="under">${plain(x.under)}/mo under typical</span><span class="sc">${Math.round(x.pct)}%</span></div>
+    <div class="db"><h3>${esc(name)}</h3><span class="where">${esc(x.hood)}, Manhattan${x.office?' · '+esc(x.office):''}</span>
+    <span class="price"><b>${plain(x.price)}</b><span class="muted small">/mo asking · typical ${plain(x.median)}</span></span>
+    <span class="feats">${f.map(t=>`<span>${esc(t)}</span>`).join('')}</span></div></${tag}>`;
+}
+function adCard(){return ADS.contact?`<a class="deal ad" href="${esc(/^(https?:|mailto:)/.test(ADS.contact)?ADS.contact:'mailto:'+ADS.contact)}" target="_blank" rel="noopener"><span class="eyebrow">Sponsored</span><h3>Your building here</h3><span class="small muted">Reach renters who already know their budget. Ads are labeled and never change the ranking.</span><span class="btn sm">Advertise on APT</span></a>`:'';}
 function renderDeals(){
   const se=document.getElementById('sourcesEl'); if(se) se.innerHTML=sourcesHTML();
   const el=document.getElementById('dealsEl'); if(!el)return;
+  const head=document.querySelector('#deals .band-head p');
+  if(LIVE && S.market==='newyork'){
+    const cards=LIVE.listings.slice(0,12).map(liveCard); const ad=adCard(); if(ad)cards.splice(4,0,ad);
+    el.innerHTML=cards.join('');
+    if(head) head.innerHTML=`${LIVE.kept.toLocaleString()} of ${LIVE.analyzed.toLocaleString()} Manhattan listings are under typical rent for their ZIP and size. These are the best twelve. <span class="demo-tag">Live from ${esc(LIVE.source)} · ${esc(new Date(LIVE.fetchedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}))}</span>`;
+    return;
+  }
+  if(head) head.innerHTML='Each one is under market and passes the furniture test. <span class="demo-tag">Sample listings</span>';
   el.innerHTML=DEALS.map(d=>{const a=byId(d.id); const name=a?a.name+' '+a.unit:d.name; const hd=M.hoods[a?a.hood:d.hood]; const cost=a?effTrue(a):d.allIn; const sc=a?a.score:d.score;
     return `<button class="deal" type="button" ${a?`data-open="${a.id}"`:'data-view-deals="1"'} aria-label="${esc(name)}">
       <div class="dp">${pic(d.id,(a||L[0]).photo)}<span class="under">${money(d.under)}/mo under market</span><span class="sc">${sc}</span></div>
@@ -1168,7 +1198,7 @@ document.getElementById('demoRun').addEventListener('click',()=>runDemo(true));
 (function(){const top=document.querySelector('.top'),hero=document.getElementById('heroFull');
   const upd=()=>top.classList.toggle('solid', !hero || window.scrollY > hero.offsetHeight-70);
   window.addEventListener('scroll',upd,{passive:true}); window.addEventListener('resize',upd); upd();})();
-renderMarketing(); renderDeals(); renderGuides(); renderPremium(); runDemo(false); renderApp();
+renderMarketing(); renderDeals(); renderGuides(); renderPremium(); loadLive(); runDemo(false); renderApp();
 </script>
 
 </body>
