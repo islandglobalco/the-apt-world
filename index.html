@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="APT reads every listing, turns down nearly all of them, and shows you the few worth seeing.">
+<meta name="description" content="APT reads every Manhattan listing, turns down nearly all of them, and shows you the few worth seeing.">
 <meta name="theme-color" content="#EDEFE8">
 <meta property="og:title" content="APT">
-<meta property="og:description" content="Fewer apartments. Better ones.">
+<meta property="og:description" content="Stop searching for an apartment. Find one.">
 <meta property="og:image" content="https://cdn.midjourney.com/b617bdb1-74b0-4771-893a-f9fe13ca927b/0_1_1024_N.webp">
 <link rel="preload" as="image" href="https://cdn.midjourney.com/b617bdb1-74b0-4771-893a-f9fe13ca927b/0_1_2048_N.webp">
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
@@ -59,7 +59,9 @@ button{cursor:pointer}
 
 /* top bar */
 .top{position:fixed;left:0;right:0;top:0;padding-top:env(safe-area-inset-top,0px);z-index:30;background:transparent;border-bottom:1px solid rgba(255,255,255,.28);transition:background .3s,border-color .3s}
-.top:not(.solid) .mark,.top:not(.solid) .mark small,.top:not(.solid) nav a{color:#fff}
+.top:not(.solid){background:linear-gradient(to bottom,rgba(10,12,10,.55),rgba(10,12,10,0))}
+.top:not(.solid) .mark,.top:not(.solid) .mark small,.top:not(.solid) nav a{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6),0 0 14px rgba(0,0,0,.45)}
+.top:not(.solid) .mark small{background:rgba(10,12,10,.45);padding:5px 8px;font-size:13px}
 .top:not(.solid) .btn{background:#fff;color:#151815;border-color:#fff}
 .top.solid{background:var(--bg);border-bottom-color:var(--ink)}
 section.band,#app{scroll-margin-top:64px}
@@ -84,7 +86,8 @@ section.band,#app{scroll-margin-top:64px}
 .hero-media img.art,.hero-media svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 50%}
 .hero-scrim{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,18,14,.42),rgba(14,18,14,0) 22%,rgba(14,18,14,0) 45%,rgba(14,18,14,.72))}
 .hero-inner{position:relative;width:100%;display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;padding-block:120px clamp(32px,5vw,64px)}
-.hero-copy{max-width:640px;min-width:0}
+.hero-copy{max-width:660px;min-width:0;background:rgba(10,12,10,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:clamp(18px,2.6vw,32px)}
+.hero-copy .eyebrow,.hero-copy .sub{text-shadow:0 1px 3px rgba(0,0,0,.55)}
 .hero-full .eyebrow{color:rgba(255,255,255,.85)}
 .hero-full h1{font-size:clamp(44px,6.4vw,96px);color:#fff;margin-top:14px;text-shadow:0 2px 24px rgba(0,0,0,.25)}
 .hero-full h1 em{font-style:normal;color:#F6CBBE}
@@ -262,6 +265,24 @@ textarea.field{width:100%;min-height:96px;border:1px solid var(--line);backgroun
 
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:2px;font-size:14px;z-index:80}
 
+.sources{margin-top:18px;font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.sources a{color:var(--ink);text-underline-offset:3px}
+.deals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+@media (max-width:1100px){.deals{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:800px){.deals{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.deals{grid-template-columns:1fr}}
+.deal{background:var(--raised);border:1px solid var(--line);display:flex;flex-direction:column;min-width:0;text-align:left;padding:0;cursor:pointer;transition:transform .2s,border-color .2s}
+.deal:hover{transform:translateY(-2px);border-color:var(--ink)}
+.deal .dp{position:relative;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--surface)}
+.deal .under{position:absolute;left:10px;top:10px;background:var(--save);color:#fff;font:400 13px/1 var(--label);letter-spacing:.04em;padding:7px 9px}
+.deal .sc{position:absolute;right:10px;top:10px;background:var(--raised);color:var(--ink);font:700 18px/1 var(--chelt);font-stretch:70%;padding:6px 8px}
+.deal .db{padding:14px 16px 16px;display:grid;gap:6px}
+.deal h3{font-size:21px}
+.deal .where{font-size:13px;color:var(--muted)}
+.deal .price{display:flex;align-items:baseline;gap:6px}
+.deal .price b{font:700 24px/1 var(--chelt);font-stretch:70%}
+.deal .feats{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.deal .feats span{font:400 12px/1 var(--label);letter-spacing:.03em;border:1px solid var(--line);padding:5px 7px}
 .guides{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:1000px){.guides{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.guides{grid-template-columns:1fr}}
@@ -285,8 +306,9 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
 
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="#top">APT <small>Fewer apartments. Better ones.</small></a>
+    <a class="mark" href="#top">APT <small>Stop searching for an apartment. Find one.</small></a>
     <nav aria-label="Site">
+      <a href="#deals">Deals</a>
       <a href="#demo">See it work</a>
       <a href="#no">The No engine</a>
       <a href="#app">The app</a>
@@ -312,6 +334,17 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
         <div class="stat"><span class="eyebrow">APT found</span><span class="big"><span id="heroMatches">8</span> matches</span><span class="small" id="heroOf"></span></div>
         <div class="stat"><span class="eyebrow">Saved you</span><span class="big" id="heroSave"></span><span class="small">a year</span></div>
       </div>
+    </div>
+  </section>
+
+  <section class="band" id="deals">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>Twelve good deals</h2>
+        <p>Each one is under market and passes the furniture test. <span class="demo-tag">Sample listings</span></p>
+      </div>
+      <div class="deals" id="dealsEl"></div>
+      <p class="sources" id="sourcesEl"></p>
     </div>
   </section>
 
@@ -395,7 +428,7 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
         <p>Easy wins for a rental. Keep every original part in a labeled bag and put it back before you move out.</p>
       </div>
       <div class="guides" id="guidesEl"></div>
-      <p class="small muted" style="margin-top:16px">Prices are rough US estimates. Ask your landlord in writing before changing anything attached to the wall.</p>
+      <p class="small muted" style="margin-top:16px">Prices are rough US estimates. Ask your landlord in writing before changing anything attached to the wall. Shopping links may earn APT a commission; that never changes what we recommend.</p>
     </div>
   </section>
   <section class="band" id="pricing">
@@ -406,31 +439,40 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
       </div>
       <div class="price">
         <div class="box"><p class="eyebrow">Free</p><h3 style="margin-top:8px">Search</h3><p class="muted small" style="margin-top:8px">Plain-English search. A short list. The real monthly cost.</p></div>
-        <div class="box"><p class="eyebrow">APT Premium</p><h3 style="margin-top:8px">Decide</h3><p class="muted small" style="margin-top:8px">Price alerts, negotiation help, lease review.</p></div>
+        <div class="box" style="border-color:var(--ink)"><p class="eyebrow">APT Premium</p><h3 style="margin-top:8px">Decide</h3><p class="big" style="margin-top:10px" id="premPrice"></p><p class="muted small" style="margin-top:8px">Price alerts, negotiation help, lease review. Cancel any time.</p><a class="btn" id="premBtn" style="margin-top:14px" target="_blank" rel="noopener">Get Premium</a></div>
         <div class="box"><p class="eyebrow">Partners</p><h3 style="margin-top:8px">Brokers &amp; managers</h3><p class="muted small" style="margin-top:8px">Referrals where allowed. Never rank.</p></div>
       </div>
     </div>
   </section>
 </main>
 
-<footer class="foot"><div class="wrap"><span>APT · Fewer apartments. Better ones.</span><span>All apartments, buildings and figures on this page are sample data for demonstration.</span></div></footer>
+<footer class="foot"><div class="wrap"><span>APT · Stop searching for an apartment. Find one.</span><span>All apartments, buildings and figures on this page are sample data for demonstration.</span></div></footer>
 
 <div id="sheetHost"></div>
 <div id="toastHost"></div>
 
 <script>
+/* ===================== MONEY ===================== */
+/* Fill these in to get paid: a Stripe Payment Link for Premium, and an Amazon Associates tag for guide links. */
+const PAY = { premiumUrl: '', premiumPrice: 19 };
+const AFF = { amazonTag: '' };
+const shop = q => `https://www.amazon.com/s?k=${encodeURIComponent(q)}${AFF.amazonTag?`&tag=${encodeURIComponent(AFF.amazonTag)}`:''}`;
 /* ===================== MARKETS ===================== */
 const MARKETS = {
   madison:{name:'Madison',cur:'$',k:1,transit:'Rapid bus stop',office:'Capitol Square',count:1842,raw:3117,sources:9,unit:'sqft',
+    find:[['Craigslist','https://madison.craigslist.org/search/apa'],['Apartments.com','https://www.apartments.com/madison-wi/'],['PadMapper','https://www.padmapper.com/apartments/madison-wi'],['Trulia','https://www.trulia.com/for_rent/Madison,WI/'],['Facebook Marketplace','https://www.facebook.com/marketplace/madison/propertyrentals']],
     hoods:['Capitol East','Tenney-Lapham','Atwood','Monroe Street','Langdon','Williamson-Marquette','Vilas','Bassett','Mansion Hill','First Settlement'],lakes:true},
   chicago:{name:'Chicago',cur:'$',k:1.08,transit:'L station',office:'the Loop',count:4206,raw:7390,sources:11,unit:'sqft',
+    find:[['Craigslist','https://chicago.craigslist.org/search/apa'],['Apartments.com','https://www.apartments.com/chicago-il/'],['PadMapper','https://www.padmapper.com/apartments/chicago-il'],['Trulia','https://www.trulia.com/for_rent/Chicago,IL/'],['Facebook Marketplace','https://www.facebook.com/marketplace/chicago/propertyrentals']],
     hoods:['Logan Square','Ravenswood','Lincoln Square','Ukrainian Village','Andersonville','Bucktown','Lakeview','West Loop','Wicker Park','Pilsen']},
-  newyork:{name:'New York',cur:'$',k:1.55,transit:'subway station',office:'Flatiron',count:9377,raw:18240,sources:14,unit:'sqft',
-    hoods:['Fort Greene','Carroll Gardens','Clinton Hill','West Village','Astoria','Prospect Heights','Greenpoint','Upper West Side','Park Slope','Chelsea']},
+  newyork:{name:'Manhattan',cur:'$',k:1.65,transit:'subway station',office:'Midtown',count:9377,raw:18240,sources:14,unit:'sqft',
+    hoods:['East Village','West Village','Chelsea','Upper West Side','Lower East Side','Hell\'s Kitchen','Gramercy','Morningside Heights','Harlem','Yorkville'],
+    find:[['Craigslist','https://newyork.craigslist.org/search/mnh/apa?min_bedrooms=1'],['Apartments.com','https://www.apartments.com/manhattan-ny/1-bedrooms/'],['PadMapper','https://www.padmapper.com/apartments/new-york-ny'],['Trulia','https://www.trulia.com/for_rent/New_York,NY/1p_beds/'],['Facebook Marketplace','https://www.facebook.com/marketplace/nyc/propertyrentals']]},
   london:{name:'London',cur:'£',k:1,transit:'Tube station',office:'King\'s Cross',count:6511,raw:12880,sources:12,unit:'m²',
+    find:[['Rightmove','https://www.rightmove.co.uk/property-to-rent/London.html'],['Zoopla','https://www.zoopla.co.uk/to-rent/property/london/'],['OpenRent','https://www.openrent.co.uk/properties-to-rent/london'],['Facebook Marketplace','https://www.facebook.com/marketplace/london/propertyrentals']],
     hoods:['Islington','De Beauvoir','Clapham','Marylebone','Highbury','Stoke Newington','Primrose Hill','Bermondsey','Hackney','Kentish Town']}
 };
-let M = MARKETS.madison;
+let M = MARKETS.newyork;
 const money = n => { const v = Math.round(n*M.k/5)*5; return (v<0?'−':'')+M.cur+Math.abs(v).toLocaleString('en-US'); };
 const area = s => M.unit==='m²' ? Math.round(s*0.0929)+' m²' : s.toLocaleString('en-US')+' sqft';
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -506,7 +548,7 @@ const L = [
   why:['Groceries, coffee and three parks within a 6-minute walk.','Internet is included, so the $75 amenity fee is partly offset.']},
  {id:'orchard',rank:7,name:'Orchard Row House',unit:'2',hood:6,rent:2550,fees:[['Utilities',160,'E'],['Internet',55,'E'],['Renters insurance (required)',15,'V']],
   sqft:780,usable:79,floor:'2nd of 3',score:88,fit:87,q:86,v:90,
-  s:{Price:91,Location:86,Light:88,Noise:90,Building:80,Layout:84,Kitchen:76,Transit:83},
+  s:{Price:91,Location:86,Light:88,Noise:90,Building:80,Layout:84,Kitchen:86,Transit:83},
   transit:12,commute:{door:29,typ:[25,34],peak:[31,40]},tag:'Most character',line:'Old bones, a bay window, and an owner who lives upstairs.',
   hist:[[2550,'Sep 19']],conc:null,dep:2550,app:35,broker:0,mif:0,
   src:'Owner direct listing',ver:'3 days ago',priceV:true,availV:false,lq:79,
@@ -514,7 +556,7 @@ const L = [
   light:{v:88,c:'Medium',r:'Bay window in the living room. Bedroom faces a neighbor\'s wall about 12 ft away.'},
   noise:{v:90,c:'Medium',r:'Quiet residential street near a park.'},
   route:'Human',neg:null,photo:{wall:'#E3D9C8',floor:'#7B5A3C',sky:'#C0D4DE',win:1,light:.8,sofa:'#7A4E3C'},x:22,y:62,
-  why:['Original details you said you like: high ceilings, built-ins, a bay window.','Kitchen appliances look about 15+ years old (medium confidence). Ask before you apply.']},
+  why:['Original details you said you like: high ceilings, built-ins, a bay window.','Kitchen redone in 2023 with a gas range and wood cabinets (seen in photos).']},
  {id:'bassett',rank:8,name:'Bassett Yard',unit:'701',hood:7,rent:2950,fees:[['Utilities',0,'V'],['Internet',35,'E'],['Renters insurance (required)',15,'V']],
   sqft:720,usable:82,floor:'7th of 9',score:87,fit:89,q:90,v:84,
   s:{Price:82,Location:93,Light:90,Noise:84,Building:91,Layout:89,Kitchen:91,Transit:99},
@@ -579,7 +621,7 @@ const REASONS = [['Too expensive (true cost)',612],['Too noisy',287],['Poor ligh
 
 /* ===================== STATE ===================== */
 const S = {
-  market:'madison', view:'home', mode:'match',
+  market:'newyork', view:'home', mode:'match',
   budget:3200, beds:1,
   must:['Quiet','Natural light','Modern kitchen','Transit nearby','Walkable'],
   nice:['High ceilings','Balcony','Original details'],
@@ -712,14 +754,42 @@ function noCard(r){
 }
 
 const GUIDES=[
- {t:'Light',c:180,steps:['Hang two paper lantern pendants from ceiling hooks with plug-in cord kits. No wiring.','Use warm 2700K bulbs, 90+ CRI.','Add two lamps so the overhead light can stay off.']},
- {t:'Switches & plates',c:60,steps:['Swap yellowed switch and outlet covers for plain white or brass. One screwdriver.','Want new switches? Ask your landlord first. Breaker off, check with a tester, or have them do it.']},
- {t:'Kitchen & bath',c:110,steps:['Replace cabinet knobs and pulls.','Swap the shower head. Takes ten minutes.','Add a good soap dispenser and a wood cutting board left out.']},
- {t:'Windows & floor',c:150,steps:['Replace the cheap vinyl blinds with cordless wood or woven bamboo blinds, inside-mounted.','Measure each window twice. Keep the old blinds for move-out.','Put one large rug down in the living room.']}
+ {t:'Light',c:180,buy:[['Lantern cord kits','paper lantern pendant plug in cord kit'],['2700K bulbs','2700K 90 CRI LED bulb']],steps:['Hang two paper lantern pendants from ceiling hooks with plug-in cord kits. No wiring.','Use warm 2700K bulbs, 90+ CRI.','Add two lamps so the overhead light can stay off.']},
+ {t:'Switches & plates',c:60,buy:[['Switch plates','white screwless switch plate']],steps:['Swap yellowed switch and outlet covers for plain white or brass. One screwdriver.','Want new switches? Ask your landlord first. Breaker off, check with a tester, or have them do it.']},
+ {t:'Kitchen & bath',c:110,buy:[['Cabinet pulls','brass cabinet pulls'],['Shower heads','handheld shower head']],steps:['Replace cabinet knobs and pulls.','Swap the shower head. Takes ten minutes.','Add a good soap dispenser and a wood cutting board left out.']},
+ {t:'Windows & floor',c:150,buy:[['Bamboo blinds','cordless bamboo roman blinds'],['Rugs','8x10 flatweave wool rug']],steps:['Replace the cheap vinyl blinds with cordless wood or woven bamboo blinds, inside-mounted.','Measure each window twice. Keep the old blinds for move-out.','Put one large rug down in the living room.']}
 ];
+const DEALS=[
+ {id:'larkspur',under:320,f:['South light','In-unit laundry','6 min to transit']},
+ {id:'fieldstone',under:410,f:['9-ft windows','Timber floors','In-unit laundry']},
+ {id:'wloft',name:'Calder Street Loft',hood:5,allIn:2390,score:90,under:360,f:['Steel windows','Gas range','Brick walls']},
+ {id:'langdon',under:380,f:['2 months free','Water view','Heat pump']},
+ {id:'juniper',under:260,f:['Faces a park','Parking included','In-unit laundry']},
+ {id:'wgold',name:'Prospect Flats 5C',hood:9,allIn:2610,score:92,under:240,f:['Skyline view','Hardwood floors','In-unit laundry']},
+ {id:'ninebark',under:210,f:['Two exposures','Heat included','No elevator']},
+ {id:'thimble',under:230,f:['Internet included','Walk to groceries','Gas range']},
+ {id:'wkitchen',name:'Elm & Ninth 2',hood:2,allIn:2180,score:88,under:340,f:['Gas range','Wood cabinets','Bike storage']},
+ {id:'orchard',under:290,f:['Bay window','High ceilings','New kitchen']},
+ {id:'wlake',name:'Riverside 4B',hood:3,allIn:2540,score:89,under:300,f:['River view','Wood blinds','Heat pump']},
+ {id:'bassett',under:200,f:['Price cut twice','3 min to transit','Room to negotiate']}
+];
+function sourcesHTML(){return `<span class="eyebrow">Search the sources yourself</span>${(M.find||[]).map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`).join('')}`;}
+function renderDeals(){
+  const se=document.getElementById('sourcesEl'); if(se) se.innerHTML=sourcesHTML();
+  const el=document.getElementById('dealsEl'); if(!el)return;
+  el.innerHTML=DEALS.map(d=>{const a=byId(d.id); const name=a?a.name+' '+a.unit:d.name; const hd=M.hoods[a?a.hood:d.hood]; const cost=a?effTrue(a):d.allIn; const sc=a?a.score:d.score;
+    return `<button class="deal" type="button" ${a?`data-open="${a.id}"`:'data-view-deals="1"'} aria-label="${esc(name)}">
+      <div class="dp">${pic(d.id,(a||L[0]).photo)}<span class="under">${money(d.under)}/mo under market</span><span class="sc">${sc}</span></div>
+      <div class="db"><h3>${esc(name)}</h3><span class="where">${esc(hd)}, ${esc(M.name)}</span>
+      <span class="price"><b>${money(cost)}</b><span class="muted small">/mo, all in</span></span>
+      <span class="feats">${d.f.map(x=>`<span>${esc(x)}</span>`).join('')}</span></div></button>`}).join('');
+}
+function renderPremium(){const p=document.getElementById('premPrice'),b=document.getElementById('premBtn'); if(!p)return;
+  p.innerHTML=`$${PAY.premiumPrice}<span class="muted small"> /month</span>`;
+  if(PAY.premiumUrl){b.href=PAY.premiumUrl;b.textContent='Get Premium';}else{b.removeAttribute('href');b.textContent='Premium opens soon';b.setAttribute('aria-disabled','true');b.style.opacity='.55';}}
 function renderGuides(){
   const el=document.getElementById('guidesEl'); if(!el)return;
-  el.innerHTML=GUIDES.map(g=>`<article class="guide"><h3>${esc(g.t)}</h3><ol>${g.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="cost"><span>About</span><span>${money(g.c)}</span></div></article>`).join('');
+  el.innerHTML=GUIDES.map(g=>`<article class="guide"><h3>${esc(g.t)}</h3><ol>${g.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><p class="small">${(g.buy||[]).map(([l,q])=>`<a href="${shop(q)}" target="_blank" rel="noopener sponsored">Shop ${esc(l.toLowerCase())}</a>`).join(' · ')}</p><div class="cost"><span>About</span><span>${money(g.c)}</span></div></article>`).join('');
   el.insertAdjacentHTML('afterend','');
   const tot=document.getElementById('guideTotal'); if(tot) tot.remove();
   el.insertAdjacentHTML('afterend',`<div class="guide-total" id="guideTotal"><span class="eyebrow">Total</span><span class="big">${money(GUIDES.reduce((t,g)=>t+g.c,0))}</span></div>`);
@@ -784,7 +854,7 @@ function renderSide(){
   document.getElementById('side').innerHTML=`<span class="eyebrow lbl">APT</span>`+VIEWS.map(([k,l])=>`<button data-view="${k}" ${S.view===k?'aria-current="page"':''}>${l}${n[k]!=null?`<span class="badge">${n[k].toLocaleString()}</span>`:''}</button>`).join('');
 }
 function topBar(){
-  return `<div class="mkt"><div class="seg" role="group" aria-label="Market">${Object.entries(MARKETS).map(([k,m])=>`<button data-market="${k}" aria-pressed="${S.market===k}">${m.name}</button>`).join('')}</div><span class="demo-tag">Sample data</span></div>`;
+  return `<div class="mkt"><div class="seg" role="group" aria-label="Market">${['newyork','madison','chicago','london'].map(k=>[k,MARKETS[k]]).map(([k,m])=>`<button data-market="${k}" aria-pressed="${S.market===k}">${m.name}</button>`).join('')}</div><span class="demo-tag">Sample data</span></div>`;
 }
 function go(v){S.view=v;try{localStorage.setItem('apt-view',v)}catch(e){};renderApp();}
 function renderApp(){
@@ -858,7 +928,7 @@ function vDiscover(){
   const desc={exact:'Only apartments that meet every hard requirement.',match:'Ranked by fit to your whole profile.',value:'Ranked by quality per dollar of true cost.',cheap:'The least expensive apartments APT still considers good.',dream:'Budget relaxed by about 12% to show exceptional places.'};
   return `<div class="vh"><div><p class="eyebrow">Discover</p><h2 style="margin-top:6px">${list.length} apartments worth seeing</h2><p class="small muted" style="margin-top:6px">Chosen from ${M.count.toLocaleString()} listings. ${desc[S.mode]}</p></div>
   <div class="seg" role="group" aria-label="Search mode">${modes.map(([k,l])=>`<button data-mode="${k}" aria-pressed="${S.mode===k}">${l}</button>`).join('')}</div></div>
-  <div class="feed">${list.length?list.map(feedCard).join(''):`<div class="box"><p>Nothing meets every hard requirement right now. APT will alert you when something does. Best match mode shows the closest options.</p></div>`}</div>`;
+  <p class="sources" style="margin:0 0 16px">${sourcesHTML()}</p><div class="feed">${list.length?list.map(feedCard).join(''):`<div class="box"><p>Nothing meets every hard requirement right now. APT will alert you when something does. Best match mode shows the closest options.</p></div>`}</div>`;
 }
 function vSaved(){
   const list=[...S.saved].map(byId).filter(Boolean);
@@ -1053,7 +1123,8 @@ document.addEventListener('click',e=>{
   if(d.closeBg!==undefined && e.target===t){closeSheet();return;}
   if(d.close!==undefined){closeSheet();return;}
   if(d.view)return go(d.view);
-  if(d.market){S.market=d.market;M=MARKETS[d.market];S.chat=[];renderMarketing();renderGuides();runDemo(false);renderApp();return;}
+  if(d.viewDeals){go('discover');document.getElementById('app').scrollIntoView({behavior:'smooth'});return;}
+  if(d.market){S.market=d.market;M=MARKETS[d.market];S.chat=[];renderMarketing();renderGuides();renderDeals();runDemo(false);renderApp();return;}
   if(d.mode){S.mode=d.mode;renderApp();return;}
   if(d.open){openSheet(d.open);return;}
   if(d.save){S.saved.has(d.save)?S.saved.delete(d.save):(S.saved.add(d.save),S.memory.push({t:'Today',e:'Saved '+byId(d.save).name,w:'Raised weight on its strongest traits.'}));toast(S.saved.has(d.save)?'Saved':'Removed from saved');renderApp();if(document.querySelector('.sheet'))openSheet(d.save);return;}
@@ -1094,7 +1165,7 @@ document.getElementById('demoRun').addEventListener('click',()=>runDemo(true));
 (function(){const top=document.querySelector('.top'),hero=document.getElementById('heroFull');
   const upd=()=>top.classList.toggle('solid', !hero || window.scrollY > hero.offsetHeight-70);
   window.addEventListener('scroll',upd,{passive:true}); window.addEventListener('resize',upd); upd();})();
-renderMarketing(); renderGuides(); runDemo(false); renderApp();
+renderMarketing(); renderDeals(); renderGuides(); renderPremium(); runDemo(false); renderApp();
 </script>
 
 </body>
