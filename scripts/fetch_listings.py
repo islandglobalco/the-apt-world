@@ -2,7 +2,7 @@
 and write data/listings.json for the site. Runs in GitHub Actions; the API key
 comes from the RENTCAST_API_KEY repository secret and never reaches the browser.
 
-Budget: RentCast's free plan allows 50 requests a month. Each run uses at most
+Budget: RentCast's free plan allows 50 requests a month (hard-capped at 40 below). Each run uses at most
 MAX_PAGES requests (500 listings each)."""
 import json, os, statistics, sys, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
