@@ -81,7 +81,9 @@ section.band,#app{scroll-margin-top:64px}
 .btn.sm{padding:7px 12px;font-size:13px}
 .btn.no{background:var(--no);border-color:var(--no);color:#fff}
 .btn.save{background:var(--save);border-color:var(--save);color:var(--bg)}
-@media (max-width:1180px){.top nav a[href="#demo"],.top nav a[href="#pricing"]{display:none}}
+@media (max-width:1360px){.top nav a[href="#demo"]{display:none}}
+@media (max-width:1180px){.top nav a[href="#demo"],.top nav a[href="#pricing"],.top nav a[href="#no"]{display:none}}
+.top .btn{white-space:nowrap}
 @media (max-width:980px){.mark small{display:none}}
 @media (max-width:760px){.top nav{display:none}}
 
@@ -361,6 +363,19 @@ section.band{border-top:0}
 .sheet h2{text-transform:none}
 .sheet .big{font-size:clamp(40px,5vw,56px)!important;line-height:1}
 .sheet .ph{max-height:46vh}
+
+/* List with us */
+.listgrid{align-items:start}
+.lf{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.lf label,.lchk label{display:grid;gap:6px;font-size:14px;font-weight:600}
+.lf .wide{grid-column:1/-1}
+.lf input.field,.lf select.field{width:100%;border:1px solid var(--line);background:var(--raised);border-radius:10px;padding:10px 12px;font:inherit;font-weight:400;color:var(--ink)}
+.lf textarea.field{min-height:72px;border-radius:10px;font-weight:400}
+.lchk{border:0;margin:16px 0 0;padding:0;display:grid;gap:8px}
+.lchk label{display:flex;gap:10px;align-items:center;font-weight:400}
+.lchk input{width:18px;height:18px;accent-color:var(--ink)}
+.lside{display:grid;gap:16px}
+@media (max-width:760px){.listgrid{grid-template-columns:1fr}.lf{grid-template-columns:1fr}}
 </style>
 <script src="https://island.contact/snippet.js" data-site="the-apt" defer></script>
 </head>
@@ -376,6 +391,7 @@ section.band{border-top:0}
       <a href="#app">The app</a>
       <a href="#guides">$500 guide</a>
       <a href="#pricing">Pricing</a>
+      <a href="#list">List with us</a>
     </nav>
     <a class="btn sm" href="#app">Start searching</a>
   </div>
@@ -512,7 +528,48 @@ section.band{border-top:0}
       <div class="price">
         <div class="box"><p class="eyebrow">Free</p><h3 style="margin-top:8px">Search</h3><p class="muted small" style="margin-top:8px">Plain-English search. A short list. The real monthly cost.</p></div>
         <div class="box" style="border-color:var(--ink)"><p class="eyebrow">APT Premium</p><h3 style="margin-top:8px">Decide</h3><p class="big" style="margin-top:10px" id="premPrice"></p><p class="muted small" style="margin-top:8px">Price alerts, negotiation help, lease review. Cancel any time.</p><a class="btn" id="premBtn" style="margin-top:14px" target="_blank" rel="noopener">Get Premium</a></div>
-        <div class="box"><p class="eyebrow">Partners</p><h3 style="margin-top:8px">Brokers &amp; managers</h3><p class="muted small" style="margin-top:8px">Referrals where allowed. Never rank.</p></div>
+        <div class="box"><p class="eyebrow">Partners</p><h3 style="margin-top:8px">Brokers &amp; managers</h3><p class="muted small" style="margin-top:8px">List for free. Referrals where allowed. Never rank.</p><a class="btn sm" href="#list" style="margin-top:14px">List an apartment</a></div>
+      </div>
+    </div>
+  </section>
+  <section class="band" id="list">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>Got a good apartment? List it.</h2>
+        <p>For landlords, brokers and managers in Manhattan. Free while we're new. We say no to most listings, so the ones we keep get seen.</p>
+      </div>
+      <div class="grid2 listgrid">
+        <form class="box" id="listForm" novalidate>
+          <p class="eyebrow">One apartment</p>
+          <div class="lf">
+            <label>I'm the<select class="field" name="role"><option>Landlord / owner</option><option>Listing broker</option><option>Property manager</option></select></label>
+            <label>Your name<input class="field" name="name" required autocomplete="name"></label>
+            <label>Email<input class="field" name="email" type="email" required autocomplete="email"></label>
+            <label>Phone, optional<input class="field" name="phone" type="tel" autocomplete="tel"></label>
+            <label class="wide">Building address<input class="field" name="address" required placeholder="123 W 4th St"></label>
+            <label>Unit<input class="field" name="unit" placeholder="3B"></label>
+            <label>Bedrooms<select class="field" name="beds"><option>Studio</option><option>1</option><option>2</option></select></label>
+            <label>Monthly rent<input class="field" name="rent" inputmode="numeric" required placeholder="3200"></label>
+            <label>Broker fee<select class="field" name="fee"><option>No fee</option><option>Tenant pays fee</option></select></label>
+            <label>Available<input class="field" name="avail" type="date"></label>
+            <label class="wide">Link to interior photos<input class="field" name="photos" type="url" required placeholder="Google Photos, Dropbox, your listing page"></label>
+            <label class="wide">Anything else<textarea class="field" name="notes" placeholder="Light, quiet, recent work, concessions"></textarea></label>
+          </div>
+          <fieldset class="lchk"><legend class="eyebrow">It passes if</legend>
+            <label><input type="checkbox" required> Real interior photos, every room</label>
+            <label><input type="checkbox" required> No wall-to-wall carpet</label>
+            <label><input type="checkbox" required> No coil-burner stove or tired laminate kitchen</label>
+            <label><input type="checkbox" required> Priced at or under the neighborhood</label>
+          </fieldset>
+          <p class="small" id="listErr" role="alert" style="color:var(--pink-ink);min-height:1.2em"></p>
+          <button class="btn" type="submit">Send it to APT</button>
+          <p class="small muted" style="margin-top:8px">Opens your email with everything filled in. We reply within two days.</p>
+        </form>
+        <div class="lside">
+          <div class="box"><p class="eyebrow">Brokers</p><h3 style="margin-top:8px">Send us your feed</h3><p class="muted small" style="margin-top:8px">REBNY member? We can show your RLS listings with your name and photos on every page, and send the renter straight to you.</p></div>
+          <div class="box"><p class="eyebrow">Buildings &amp; managers</p><h3 style="margin-top:8px">Syndicate to APT</h3><p class="muted small" style="margin-top:8px">We take a standard ILS feed (MITS XML) from Yardi, AppFolio, Entrata, Funnel and the rest. Every lead goes to your leasing team.</p></div>
+          <div class="box"><p class="eyebrow">The deal</p><p class="muted small" style="margin-top:8px">Your listing stays yours. We never rank by who pays. If it isn't a good deal, we'll tell you why, nicely.</p><a class="btn sm" id="listMail" style="margin-top:12px">Email partnerships</a></div>
+        </div>
       </div>
     </div>
   </section>
@@ -530,6 +587,8 @@ const PAY = { premiumUrl: '', premiumPrice: 19 };
 const AFF = { amazonTag: '' };
 /* Sponsored slot in the deals grid. Set contact to an email or page URL to start selling it. */
 const ADS = { contact: '' };
+/* Where landlord, broker and manager submissions go (the List with us form). */
+const LIST = { contact: 'info@island.contact' };
 const shop = q => `https://www.amazon.com/s?k=${encodeURIComponent(q)}${AFF.amazonTag?`&tag=${encodeURIComponent(AFF.amazonTag)}`:''}`;
 /* ===================== MARKETS ===================== */
 const MARKETS = {
@@ -1310,6 +1369,23 @@ document.getElementById('demoRun').addEventListener('click',()=>runDemo(true));
   const upd=()=>top.classList.toggle('solid', !hero || window.scrollY > hero.offsetHeight-70);
   window.addEventListener('scroll',upd,{passive:true}); window.addEventListener('resize',upd); upd();})();
 renderMarketing(); renderDeals(); renderGuides(); renderPremium(); loadLive(); runDemo(false); renderApp();
+
+/* ---------- List with us ---------- */
+(function(){
+  const f=document.getElementById('listForm'); if(!f) return;
+  const to=LIST.contact, ml=document.getElementById('listMail');
+  if(ml){ if(to) ml.href='mailto:'+to+'?subject='+encodeURIComponent('APT partnership'); else ml.hidden=true; }
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    const err=document.getElementById('listErr'), d=Object.fromEntries(new FormData(f));
+    const bad=[...f.querySelectorAll('[required]')].find(x=>x.type==='checkbox'?!x.checked:!x.value.trim()||!x.checkValidity());
+    if(bad){err.textContent=bad.type==='checkbox'?'Tick all four. If one is a no, it isn\'t a fit yet.':'Fill in '+(bad.closest('label')?.firstChild?.textContent.trim()||'the missing field').toLowerCase()+'.';bad.focus();return;}
+    err.textContent='';
+    const body=[['Role',d.role],['Name',d.name],['Email',d.email],['Phone',d.phone],['Address',d.address],['Unit',d.unit],['Bedrooms',d.beds],['Rent','$'+String(d.rent).replace(/[^\d]/g,'')],['Fee',d.fee],['Available',d.avail],['Photos',d.photos],['Notes',d.notes]].filter(r=>r[1]).map(r=>r[0]+': '+r[1]).join('\n')+'\n\nConfirmed: real interior photos, no wall-to-wall carpet, no coil-burner stove or tired kitchen, priced at or under the neighborhood.';
+    if(!to){err.textContent='Listings open soon.';return;}
+    location.href='mailto:'+to+'?subject='+encodeURIComponent('APT listing: '+d.address+(d.unit?' #'+d.unit:''))+'&body='+encodeURIComponent(body);
+  });
+})();
 </script>
 
 </body>
