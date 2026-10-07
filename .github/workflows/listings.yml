@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: "17 11 */3 * *"   # every third day, 6:17am Central
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - scripts/fetch_listings.py
+      - .github/workflows/listings.yml
 permissions:
   contents: write
 jobs:
