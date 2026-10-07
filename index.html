@@ -282,7 +282,7 @@ textarea.field{width:100%;min-height:96px;border:1px solid var(--line);backgroun
 @media (max-width:800px){.deals{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:480px){.deals{grid-template-columns:1fr}}
 .deal{background:var(--raised);border:1px solid var(--line);display:flex;flex-direction:column;min-width:0;text-align:left;padding:0;cursor:pointer;transition:transform .2s,border-color .2s}
-a.deal{color:var(--ink);text-decoration:none}
+a.deal,button.deal{color:var(--ink);text-decoration:none;font:inherit}
 .deal:hover{transform:translateY(-2px);border-color:var(--ink)}
 .deal .dp{position:relative;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--surface)}
 .deal .dp svg{position:absolute;inset:0;width:100%;height:100%}
@@ -355,6 +355,9 @@ section.band{border-top:0}
 .guide .cost{border-top:1px dashed var(--line)}
 .guide-total{border-top:0;border-bottom:0}
 .sources a{font-weight:600}
+.sheet h2{text-transform:none}
+.sheet .big{font-size:clamp(40px,5vw,56px)!important;line-height:1}
+.sheet .ph{max-height:46vh}
 </style>
 <script src="https://island.contact/snippet.js" data-site="the-apt" defer></script>
 </head>
@@ -838,7 +841,7 @@ async function loadLive(){
 function liveCard(x,i){
   const keys=Object.keys(ART); const k=keys[i%keys.length]; const plain=v=>'$'+Math.round(v).toLocaleString('en-US');
   const name=x.address+(x.unit?' '+x.unit:''); const f=[`${x.beds===0?'Studio':x.beds+' bed'}`, x.baths?`${x.baths} bath`:null, x.sqft?`${x.sqft.toLocaleString()} sqft`:null, x.cuts?`Price cut${x.cuts>1?' ×'+x.cuts:''}`:null, x.built?`Built ${x.built}`:null].filter(Boolean).slice(0,4);
-  const tag=x.officeSite?'a':'div'; const href=x.officeSite?` href="${esc(/^https?:/.test(x.officeSite)?x.officeSite:'https://'+x.officeSite)}" target="_blank" rel="noopener"`:'';
+  const tag='button'; const href=` type="button" data-live="${i}"`;
   return `<${tag} class="deal live"${href} aria-label="${esc(name)}">
     <div class="dp">${pic(k,L[0].photo)}<span class="under" title="under typical rent">−${plain(x.under)}/mo</span><span class="sc">${Math.round(x.pct)}%</span></div>
     <div class="db"><h3>${esc(name)}</h3><span class="where">${esc(x.hood)}, Manhattan${x.office?' · '+esc(x.office):''}</span>
@@ -846,6 +849,28 @@ function liveCard(x,i){
     <span class="feats">${f.map(t=>`<span>${esc(t)}</span>`).join('')}</span></div></${tag}>`;
 }
 function adCard(){return ADS.contact?`<a class="deal ad" href="${esc(/^(https?:|mailto:)/.test(ADS.contact)?ADS.contact:'mailto:'+ADS.contact)}" target="_blank" rel="noopener"><span class="eyebrow">Sponsored</span><h3>Your building here</h3><span class="small muted">Reach renters who already know their budget. Ads are labeled and never change the ranking.</span><span class="btn sm">Advertise on APT</span></a>`:'';}
+function openLive(i){
+  const x=LIVE&&LIVE.listings[i]; if(!x)return; const plain=v=>'$'+Math.round(v).toLocaleString('en-US');
+  const keys=Object.keys(ART); const name=x.address+(x.unit?' '+x.unit:'');
+  const site=x.officeSite?(/^https?:/.test(x.officeSite)?x.officeSite:'https://'+x.officeSite):'';
+  const map=(x.lat&&x.lng)?`https://www.google.com/maps/search/?api=1&query=${x.lat},${x.lng}`:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name+', New York, NY '+x.zip)}`;
+  const row=(k,v)=>v==null||v===''?'':`<dt>${k}</dt><dd>${v}</dd>`;
+  document.getElementById('sheetHost').innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(name)}" data-close-bg><div class="pane">
+  <div class="close"><span class="eyebrow">live listing</span><button class="btn sm ghost" data-close>Close</button></div>
+  <div class="ph">${pic(keys[i%keys.length],L[0].photo)}</div>
+  <div class="in">
+   <p class="small muted" style="font-style:italic">Illustration. RentCast doesn't provide photos, so check the listing for pictures before you go.</p>
+   <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:end"><div><h2 style="font-size:clamp(30px,4vw,44px)">${esc(name)}</h2><p class="muted small" style="margin-top:6px">${esc(x.hood)}, Manhattan · ZIP ${esc(x.zip)}</p></div>
+   <div style="text-align:right"><span class="eyebrow">under typical</span><div class="big">${Math.round(x.pct)}%</div></div></div>
+   <div class="grid2"><div class="box"><p class="eyebrow">the money</p><dl class="kv">${row('Asking rent',plain(x.price)+'/mo')}${row('Typical for '+(x.beds===0?'a studio':x.beds+'-bed')+' in '+esc(x.zip),plain(x.median)+'/mo')}<dt style="color:var(--ink);font-weight:600">You save</dt><dd style="font-weight:600;color:var(--save)">${plain(x.under)}/mo · ${plain(x.under*12)}/yr</dd>${row('Price cuts',x.cuts?String(x.cuts):'None')}${row('Days on market',x.dom!=null?String(x.dom):'')}</dl>
+     <p class="small muted" style="margin-top:10px">Typical = median asking rent for the same size in the same ZIP, from ${LIVE.analyzed.toLocaleString()} listings checked ${esc(new Date(LIVE.fetchedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}))}. Fees and utilities aren't in RentCast's data, so ask about them.</p></div>
+   <div class="box"><p class="eyebrow">the place</p><dl class="kv">${row('Bedrooms',x.beds===0?'Studio':String(x.beds))}${row('Bathrooms',x.baths!=null?String(x.baths):'')}${row('Size',x.sqft?x.sqft.toLocaleString()+' sqft':'Not listed')}${row('Built',x.built?String(x.built):'')}${row('Type',x.type?esc(x.type):'')}${row('Listed',x.listed?esc(new Date(x.listed).toLocaleDateString('en-US',{month:'short',day:'numeric'})):'')}${row('Last seen',x.seen?esc(new Date(x.seen).toLocaleDateString('en-US',{month:'short',day:'numeric'})):'')}</dl></div></div>
+   <div class="box"><p class="eyebrow">before you go</p><p class="small" style="margin-top:6px">Look at the photos for wall-to-wall carpet, coil-burner stoves and tired cabinets. APT can't see those on this listing yet.</p></div>
+   <div class="acts">${site?`<a class="btn" href="${esc(site)}" target="_blank" rel="noopener">See it on ${esc(x.office||'the listing site')}</a>`:''}${x.officePhone?`<span class="btn ghost" style="cursor:text;user-select:all">${esc(x.office||'Listing office')} · ${esc(x.officePhone)}</span>`:''}<a class="btn ghost" href="${map}" target="_blank" rel="noopener">Map</a></div>
+   <p class="small muted">Source: RentCast. Availability isn't verified; confirm with the listing office.</p>
+  </div></div></div>`;
+  document.querySelector('#sheetHost [data-close]').focus();
+}
 function renderDeals(){
   const se=document.getElementById('sourcesEl'); if(se) se.innerHTML=sourcesHTML();
   const el=document.getElementById('dealsEl'); if(!el)return;
@@ -1207,6 +1232,7 @@ document.addEventListener('click',e=>{
   if(d.market){S.market=d.market;M=MARKETS[d.market];S.chat=[];renderMarketing();renderGuides();renderDeals();runDemo(false);renderApp();return;}
   if(d.mode){S.mode=d.mode;renderApp();return;}
   if(d.open){openSheet(d.open);return;}
+  if(d.live!==undefined){openLive(+d.live);return;}
   if(d.save){S.saved.has(d.save)?S.saved.delete(d.save):(S.saved.add(d.save),S.memory.push({t:'Today',e:'Saved '+byId(d.save).name,w:'Raised weight on its strongest traits.'}));toast(S.saved.has(d.save)?'Saved':'Removed from saved');renderApp();if(document.querySelector('.sheet'))openSheet(d.save);return;}
   if(d.reject){rejectPrompt(d.reject);return;}
   if(d.reason){const a=byId(d.rid);S.rejected[d.rid]=d.reason;S.saved.delete(d.rid);S.memory.push({t:'Today',e:'Rejected '+a.name+' '+a.unit,w:d.reason+'. '+({'Too dark':'Raised weight on natural light.','Too loud':'Raised weight on noise.','Too expensive':'Lowered your comfortable price.','Bad layout':'Raised weight on usable space.','Bad location':'Lowered weight on this area.'}[d.reason]||'Noted.')});closeSheet();toast('Rejected. APT learned: '+d.reason.toLowerCase());renderApp();return;}
