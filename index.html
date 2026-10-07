@@ -251,6 +251,14 @@ textarea.field{width:100%;min-height:96px;border:1px solid var(--line);backgroun
 
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:2px;font-size:14px;z-index:80}
 
+.guides{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:1000px){.guides{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.guides{grid-template-columns:1fr}}
+.guide{background:var(--raised);border:1px solid var(--line);padding:20px;display:grid;gap:10px;align-content:start;min-width:0}
+.guide h3{font-size:24px}
+.guide ol{margin:0;padding-left:18px;display:grid;gap:8px;font-size:15px}
+.guide .cost{display:flex;justify-content:space-between;border-top:1px solid var(--ink);padding-top:10px;font-family:var(--label)}
+.guide-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-block:14px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
 .map svg{width:100%;height:auto;display:block}
 img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;background:var(--surface)}
 .ph svg,.plate svg{position:absolute;inset:0;width:100%;height:100%}
@@ -270,6 +278,7 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
       <a href="#demo">See it work</a>
       <a href="#no">The No engine</a>
       <a href="#app">The app</a>
+      <a href="#guides">$500 guide</a>
       <a href="#pricing">Pricing</a>
     </nav>
     <a class="btn sm" href="#app">Start searching</a>
@@ -338,7 +347,7 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
     <div class="wrap">
       <div class="band-head">
         <h2>The art of no</h2>
-        <p>Other sites show you more. APT shows you less, and says why.</p>
+        <p>Every apartment APT keeps passes one test: good furniture would make it great. Carpet, coil stoves, tired cabinets and bad prices are a no.</p>
       </div>
       <div class="nos" id="noCards"></div>
     </div>
@@ -367,6 +376,17 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
     </div>
   </section>
 
+
+  <section class="band" id="guides">
+    <div class="wrap">
+      <div class="band-head">
+        <h2>The $500 apartment</h2>
+        <p>Easy wins for a rental. Keep every original part in a labeled bag and put it back before you move out.</p>
+      </div>
+      <div class="guides" id="guidesEl"></div>
+      <p class="small muted" style="margin-top:16px">Prices are rough US estimates. Ask your landlord in writing before changing anything attached to the wall.</p>
+    </div>
+  </section>
   <section class="band" id="pricing">
     <div class="wrap">
       <div class="band-head">
@@ -519,6 +539,12 @@ const DREAM = {id:'belvedere',rank:'D',name:'Belvedere House',unit:'PH2',hood:9,
   why:['Exceptional on every preference, but %OVER% over your budget each month.','Price already dropped once. A counter-offer could close part of the gap.']};
 
 const REJ = [
+ {name:'Halsey Court',unit:'3C',rent:2450,cat:'Can\'t be fixed',title:'Carpet, wall to wall.',
+  body:'Beige carpet in every room, seen in 6 of 8 photos. A rug can\'t cover it.',
+  kv:[['Carpet','Wall to wall'],['Confidence','High'],['Fixable by tenant','No']],foot:'Rejected.',raw:true},
+ {name:'Dunmore Flats',unit:'210',rent:2300,cat:'Can\'t be fixed',title:'A kitchen you\'d live with, not in.',
+  body:'Coil-burner electric stove and 1980s laminate cabinets. Fair rent, but no furniture fixes a kitchen.',
+  kv:[['Stove','Electric coil'],['Cabinets','MDF, c. 1985'],['Fixable by tenant','No']],foot:'Rejected.',raw:true},
  {name:'Corrigan Tower',unit:'1408',rent:2900,cat:'Hidden fees',title:'A bargain, until the fees arrive.',
   body:'%D300% under target, plus a %D175% monthly amenity fee. No laundry.',
   kv:[['Advertised rent',2900],['Amenity fee',175],['Utilities (est.)',140],['True monthly cost',3215]],foot:'Three better options cost less.'},
@@ -546,7 +572,7 @@ const S = {
   budget:3200, beds:1,
   must:['Quiet','Natural light','Modern kitchen','Transit nearby','Walkable'],
   nice:['High ceilings','Balcony','Original details'],
-  deal:['Ground floor','Carpet','No laundry','Major road'],
+  deal:['Wall-to-wall carpet','Coil-burner stove','1980s MDF cabinets','Popcorn or drop ceilings','Overpriced','Ground floor','No laundry','Major road'],
   saved:new Set(['hartwell','larkspur','fieldstone']),
   rejected:{}, compare:['larkspur','hartwell','fieldstone'],
   memory:[
@@ -669,6 +695,19 @@ function noCard(r){
   <p style="color:var(--ink)">${esc(foot)}</p></article>`;
 }
 
+const GUIDES=[
+ {t:'Light',c:180,steps:['Hang two paper lantern pendants from ceiling hooks with plug-in cord kits. No wiring.','Use warm 2700K bulbs, 90+ CRI.','Add two lamps so the overhead light can stay off.']},
+ {t:'Switches & plates',c:60,steps:['Swap yellowed switch and outlet covers for plain white or brass. One screwdriver.','Want new switches? Ask your landlord first. Breaker off, check with a tester, or have them do it.']},
+ {t:'Kitchen & bath',c:110,steps:['Replace cabinet knobs and pulls.','Swap the shower head. Takes ten minutes.','Add a good soap dispenser and a wood cutting board left out.']},
+ {t:'Windows & floor',c:150,steps:['Hang curtain rods high and wide, near the ceiling.','Use full-length linen curtains.','Put one large rug down in the living room.']}
+];
+function renderGuides(){
+  const el=document.getElementById('guidesEl'); if(!el)return;
+  el.innerHTML=GUIDES.map(g=>`<article class="guide"><h3>${esc(g.t)}</h3><ol>${g.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="cost"><span>About</span><span>${money(g.c)}</span></div></article>`).join('');
+  el.insertAdjacentHTML('afterend','');
+  const tot=document.getElementById('guideTotal'); if(tot) tot.remove();
+  el.insertAdjacentHTML('afterend',`<div class="guide-total" id="guideTotal"><span class="eyebrow">Total</span><span class="big">${money(GUIDES.reduce((t,g)=>t+g.c,0))}</span></div>`);
+}
 /* ===================== DEMO ===================== */
 function parseQuery(t){
   const lo=t.toLowerCase(), out={chips:[],budget:null,beds:null,must:[],deal:[]};
@@ -998,7 +1037,7 @@ document.addEventListener('click',e=>{
   if(d.closeBg!==undefined && e.target===t){closeSheet();return;}
   if(d.close!==undefined){closeSheet();return;}
   if(d.view)return go(d.view);
-  if(d.market){S.market=d.market;M=MARKETS[d.market];S.chat=[];renderMarketing();runDemo(false);renderApp();return;}
+  if(d.market){S.market=d.market;M=MARKETS[d.market];S.chat=[];renderMarketing();renderGuides();runDemo(false);renderApp();return;}
   if(d.mode){S.mode=d.mode;renderApp();return;}
   if(d.open){openSheet(d.open);return;}
   if(d.save){S.saved.has(d.save)?S.saved.delete(d.save):(S.saved.add(d.save),S.memory.push({t:'Today',e:'Saved '+byId(d.save).name,w:'Raised weight on its strongest traits.'}));toast(S.saved.has(d.save)?'Saved':'Removed from saved');renderApp();if(document.querySelector('.sheet'))openSheet(d.save);return;}
@@ -1036,7 +1075,7 @@ function parseTour(v){
 }
 
 document.getElementById('demoRun').addEventListener('click',()=>runDemo(true));
-renderMarketing(); runDemo(false); renderApp();
+renderMarketing(); renderGuides(); runDemo(false); renderApp();
 </script>
 
 </body>
