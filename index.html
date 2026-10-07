@@ -407,6 +407,16 @@ section.band{border-top:0}
     </div>
   </section>
 
+  <section class="band" id="rents" hidden>
+    <div class="wrap">
+      <div class="band-head">
+        <h2>what manhattan costs right now</h2>
+        <p id="rentsNote"></p>
+      </div>
+      <div class="box tbl-wrap"><table id="rentsTbl"></table></div>
+    </div>
+  </section>
+
   <section class="band" id="demo">
     <div class="wrap">
       <div class="band-head">
@@ -836,7 +846,7 @@ function sourcesHTML(){return `<span class="eyebrow">Search the sources yourself
 let LIVE=null;
 async function loadLive(){
   try{const r=await fetch('data/listings.json',{cache:'no-store'}); if(!r.ok)return; const j=await r.json(); if(!j.listings||!j.listings.length)return; LIVE=j;
-    MARKETS.newyork.count=j.analyzed||MARKETS.newyork.count; renderDeals(); renderMarketing();}catch(e){}
+    MARKETS.newyork.count=j.analyzed||MARKETS.newyork.count; renderDeals(); renderMarketing(); renderRents();}catch(e){}
 }
 function liveCard(x,i){
   const keys=Object.keys(ART); const k=keys[i%keys.length]; const plain=v=>'$'+Math.round(v).toLocaleString('en-US');
@@ -870,6 +880,14 @@ function openLive(i){
    <p class="small muted">Source: RentCast. Availability isn't verified; confirm with the listing office.</p>
   </div></div></div>`;
   document.querySelector('#sheetHost [data-close]').focus();
+}
+function renderRents(){
+  const sec=document.getElementById('rents'); if(!sec)return;
+  if(!LIVE||!LIVE.rents||!Object.keys(LIVE.rents).length||S.market!=='newyork'){sec.hidden=true;return;}
+  const plain=v=>'$'+Math.round(v).toLocaleString('en-US'); const cell=c=>c?`<td class="mono">${plain(c.median)}<span class="muted small"> · ${c.n}</span></td>`:'<td class="muted">—</td>';
+  document.getElementById('rentsTbl').innerHTML=`<thead><tr><th>Neighborhood</th><th>Studio</th><th>1 bed</th><th>2 bed</th></tr></thead><tbody>${Object.entries(LIVE.rents).map(([h,r])=>`<tr><td>${esc(h)}</td>${cell(r['0'])}${cell(r['1'])}${cell(r['2'])}</tr>`).join('')}</tbody>`;
+  document.getElementById('rentsNote').innerHTML=`Typical asking rent from ${LIVE.analyzed.toLocaleString()} active listings, ${esc(new Date(LIVE.fetchedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}))}. The small number is how many listings each figure is based on. Use it to sanity-check any rent you're quoted. <span class="demo-tag">Live from ${esc(LIVE.source)}</span>`;
+  sec.hidden=false;
 }
 function renderDeals(){
   const se=document.getElementById('sourcesEl'); if(se) se.innerHTML=sourcesHTML();
@@ -1229,7 +1247,7 @@ document.addEventListener('click',e=>{
   if(d.close!==undefined){closeSheet();return;}
   if(d.view)return go(d.view);
   if(d.viewDeals){go('discover');document.getElementById('app').scrollIntoView({behavior:'smooth'});return;}
-  if(d.market){S.market=d.market;M=MARKETS[d.market];S.chat=[];renderMarketing();renderGuides();renderDeals();runDemo(false);renderApp();return;}
+  if(d.market){S.market=d.market;M=MARKETS[d.market];S.chat=[];renderMarketing();renderGuides();renderDeals();renderRents();runDemo(false);renderApp();return;}
   if(d.mode){S.mode=d.mode;renderApp();return;}
   if(d.open){openSheet(d.open);return;}
   if(d.live!==undefined){openLive(+d.live);return;}

@@ -80,6 +80,21 @@ def score(rows):
     kept.sort(key=lambda x: (x["pct"] + 2 * x["cuts"]), reverse=True)
     return live, kept, rejected
 
+def rents_by_hood(live):
+    """Median asking rent per neighborhood and size (0=studio, 1, 2 bedrooms), only where 5+ listings."""
+    groups = {}
+    for r in live:
+        b = int(r["bedrooms"])
+        if b > 2:
+            continue
+        groups.setdefault(HOODS[r["zipCode"]], {}).setdefault(b, []).append(r["price"])
+    out = {}
+    for hood, sizes in groups.items():
+        row = {str(b): {"median": round(statistics.median(v)), "n": len(v)} for b, v in sizes.items() if len(v) >= 5}
+        if row:
+            out[hood] = row
+    return dict(sorted(out.items()))
+
 def main():
     key = os.environ.get("RENTCAST_API_KEY")
     if not key:
@@ -87,7 +102,7 @@ def main():
     rows = fetch(key)
     live, kept, rejected = score(rows)
     out = {"source": "RentCast", "market": "Manhattan", "fetchedAt": datetime.now(timezone.utc).isoformat(timespec="minutes"),
-           "fetched": len(rows), "analyzed": len(live), "kept": len(kept), "rejected": rejected, "listings": kept[:60]}
+           "fetched": len(rows), "analyzed": len(live), "kept": len(kept), "rejected": rejected, "rents": rents_by_hood(live), "listings": kept[:60]}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
         json.dump(out, f, indent=1)
