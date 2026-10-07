@@ -11,6 +11,8 @@ API = "https://api.rentcast.io/v1/listings/rental/long-term"
 MAX_PAGES = 2
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "listings.json")
 LEDGER = os.path.join(os.path.dirname(__file__), "..", "data", "api_usage.json")
+RAW = os.path.join(os.path.dirname(__file__), "..", "data", "raw_listings.json")
+RAW_FIELDS = ("id","formattedAddress","addressLine1","addressLine2","zipCode","bedrooms","bathrooms","squareFootage","yearBuilt","propertyType","price","listedDate","lastSeenDate","daysOnMarket","listingOffice","history","latitude","longitude")
 
 # Hard budget. RentCast's free plan allows 50 requests a month; we stop at 40 so a
 # miscount or a retry can never push us into paid overage. Every attempt counts,
@@ -80,20 +82,31 @@ def price_cuts(h):
     prices = [v.get("price") for _, v in sorted(h.items()) if isinstance(v, dict) and v.get("price")]
     return sum(1 for a, b in zip(prices, prices[1:]) if b < a)
 
+TOO_GOOD = 0.40      # more than 40% under typical: likely a room, a lottery unit or bad data
+MIN_PRICE = 1500     # below this in Manhattan, almost certainly not a whole apartment
+MIN_PEERS = 8        # comparables needed for a neighborhood benchmark
+
 def score(rows):
     live = [r for r in rows if r.get("price") and r.get("zipCode") in HOODS and r.get("bedrooms") is not None]
-    by_zip, by_beds = {}, {}
+    by_hood, by_beds = {}, {}
     for r in live:
-        b = min(int(r["bedrooms"]), 3)
-        by_zip.setdefault((r["zipCode"], b), []).append(r["price"])
+        b = int(r["bedrooms"])
+        if b > 2:
+            continue
+        by_hood.setdefault((HOODS[r["zipCode"]], b), []).append(r["price"])
         by_beds.setdefault(b, []).append(r["price"])
-    kept, rejected = [], {"Overpriced": 0, "At market": 0}
+    kept, rejected = [], {"Overpriced": 0, "At market": 0, "Too cheap to be real": 0, "3+ bedrooms": 0}
     for r in live:
-        b = min(int(r["bedrooms"]), 3)
-        peers = by_zip[(r["zipCode"], b)]
-        median = statistics.median(peers if len(peers) >= 5 else by_beds[b])
+        b = int(r["bedrooms"])
+        if b > 2:
+            rejected["3+ bedrooms"] += 1; continue
+        hood = HOODS[r["zipCode"]]
+        peers = by_hood.get((hood, b), [])
+        median = statistics.median(peers if len(peers) >= MIN_PEERS else by_beds[b])
         under = median - r["price"]
         pct = under / median
+        if r["price"] < MIN_PRICE or pct > TOO_GOOD:
+            rejected["Too cheap to be real"] += 1; continue
         if pct < -0.10:
             rejected["Overpriced"] += 1; continue
         if pct < 0.04:
@@ -102,9 +115,10 @@ def score(rows):
         office = (r.get("listingOffice") or {})
         kept.append({
             "id": r.get("id"), "address": r.get("addressLine1") or r.get("formattedAddress"), "unit": r.get("addressLine2") or "",
-            "zip": r["zipCode"], "hood": HOODS[r["zipCode"]], "beds": r["bedrooms"], "baths": r.get("bathrooms"),
+            "zip": r["zipCode"], "hood": hood, "beds": r["bedrooms"], "baths": r.get("bathrooms"),
             "sqft": r.get("squareFootage"), "built": r.get("yearBuilt"), "type": r.get("propertyType"),
             "price": r["price"], "median": round(median), "under": round(under), "pct": round(pct * 100, 1),
+            "benchmark": "neighborhood" if len(peers) >= MIN_PEERS else "manhattan",
             "cuts": cuts, "dom": r.get("daysOnMarket"), "listed": r.get("listedDate"), "seen": r.get("lastSeenDate"),
             "office": office.get("name"), "officePhone": office.get("phone"), "officeSite": office.get("website"),
             "lat": r.get("latitude"), "lng": r.get("longitude"),
@@ -133,27 +147,36 @@ def main():
         sys.exit("RENTCAST_API_KEY is not set")
     led = load_ledger()
     last = led.get("lastSuccess")
-    if last and os.environ.get("FORCE_REFRESH") != "1":
+    have_raw = os.path.exists(RAW)
+    rows, fetched_at = None, None
+    if last and have_raw and os.environ.get("FORCE_REFRESH") != "1":
         hours = (datetime.now(timezone.utc) - datetime.fromisoformat(last)).total_seconds() / 3600
         if hours < MIN_HOURS_BETWEEN_FETCHES:
-            print(f"Last fetch was {hours:.0f}h ago (minimum {MIN_HOURS_BETWEEN_FETCHES}h). Skipping to save API budget.")
-            return
-    m = month_key()
-    print(f"Budget before run: {led.get('months', {}).get(m, 0)}/{MONTHLY_BUDGET} requests used in {m}")
-    rows = fetch(key, led)
-    led["lastSuccess"] = datetime.now(timezone.utc).isoformat(timespec="minutes")
-    save_ledger(led)
+            print(f"Last fetch was {hours:.0f}h ago (minimum {MIN_HOURS_BETWEEN_FETCHES}h). Rescoring saved listings; no API requests.")
+            with open(RAW) as f:
+                cached = json.load(f)
+            rows, fetched_at = cached["rows"], cached["fetchedAt"]
+    if rows is None:
+        m = month_key()
+        print(f"Budget before run: {led.get('months', {}).get(m, 0)}/{MONTHLY_BUDGET} requests used in {m}")
+        rows = fetch(key, led)
+        fetched_at = datetime.now(timezone.utc).isoformat(timespec="minutes")
+        led["lastSuccess"] = fetched_at
+        save_ledger(led)
+        print(f"Budget after run: {led['months'][m]}/{MONTHLY_BUDGET} requests used in {m}")
+        os.makedirs(os.path.dirname(RAW), exist_ok=True)
+        with open(RAW, "w") as f:
+            json.dump({"fetchedAt": fetched_at, "rows": [{k: r.get(k) for k in RAW_FIELDS} for r in rows]}, f, separators=(",", ":"))
     live, kept, rejected = score(rows)
     if not kept:
         print(f"No usable listings this run ({len(rows)} fetched). Keeping the previous data file.")
         return
-    out = {"source": "RentCast", "market": "Manhattan", "fetchedAt": datetime.now(timezone.utc).isoformat(timespec="minutes"),
+    out = {"source": "RentCast", "market": "Manhattan", "fetchedAt": fetched_at,
            "fetched": len(rows), "analyzed": len(live), "kept": len(kept), "rejected": rejected, "rents": rents_by_hood(live), "listings": kept[:60]}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
         json.dump(out, f, indent=1)
     print(f"fetched {len(rows)}, analyzed {len(live)}, kept {len(kept)}, rejected {rejected}")
-    print(f"Budget after run: {led['months'][m]}/{MONTHLY_BUDGET} requests used in {m}")
 
 if __name__ == "__main__":
     main()
