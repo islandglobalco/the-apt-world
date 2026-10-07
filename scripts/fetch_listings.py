@@ -95,14 +95,16 @@ def score(rows):
             continue
         by_hood.setdefault((HOODS[r["zipCode"]], b), []).append(r["price"])
         by_beds.setdefault(b, []).append(r["price"])
-    kept, rejected = [], {"Overpriced": 0, "At market": 0, "Too cheap to be real": 0, "3+ bedrooms": 0}
+    kept, rejected = [], {"Overpriced": 0, "At market": 0, "Too cheap to be real": 0, "3+ bedrooms": 0, "Too few comparables": 0}
     for r in live:
         b = int(r["bedrooms"])
         if b > 2:
             rejected["3+ bedrooms"] += 1; continue
         hood = HOODS[r["zipCode"]]
         peers = by_hood.get((hood, b), [])
-        median = statistics.median(peers if len(peers) >= MIN_PEERS else by_beds[b])
+        if len(peers) < MIN_PEERS:
+            rejected["Too few comparables"] += 1; continue   # no fair local benchmark, so no verdict
+        median = statistics.median(peers)
         under = median - r["price"]
         pct = under / median
         if r["price"] < MIN_PRICE or pct > TOO_GOOD:
@@ -118,7 +120,7 @@ def score(rows):
             "zip": r["zipCode"], "hood": hood, "beds": r["bedrooms"], "baths": r.get("bathrooms"),
             "sqft": r.get("squareFootage"), "built": r.get("yearBuilt"), "type": r.get("propertyType"),
             "price": r["price"], "median": round(median), "under": round(under), "pct": round(pct * 100, 1),
-            "benchmark": "neighborhood" if len(peers) >= MIN_PEERS else "manhattan",
+            "benchmark": "neighborhood",
             "cuts": cuts, "dom": r.get("daysOnMarket"), "listed": r.get("listedDate"), "seen": r.get("lastSeenDate"),
             "office": office.get("name"), "officePhone": office.get("phone"), "officeSite": office.get("website"),
             "lat": r.get("latitude"), "lng": r.get("longitude"),
