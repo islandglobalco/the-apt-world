@@ -151,7 +151,12 @@ def main():
     last = led.get("lastSuccess")
     have_raw = os.path.exists(RAW)
     rows, fetched_at = None, None
-    if last and have_raw and os.environ.get("FORCE_REFRESH") != "1":
+    flag = os.path.join(os.path.dirname(__file__), "..", "data", "force_refresh")
+    forced = os.environ.get("FORCE_REFRESH") == "1" or os.path.exists(flag)
+    if os.path.exists(flag):
+        os.remove(flag)   # one-shot: a manual "refresh now" never repeats on its own
+        print("Manual refresh requested.")
+    if last and have_raw and not forced:
         hours = (datetime.now(timezone.utc) - datetime.fromisoformat(last)).total_seconds() / 3600
         if hours < MIN_HOURS_BETWEEN_FETCHES:
             print(f"Last fetch was {hours:.0f}h ago (minimum {MIN_HOURS_BETWEEN_FETCHES}h). Rescoring saved listings; no API requests.")
