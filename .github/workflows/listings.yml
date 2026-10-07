@@ -10,6 +10,9 @@ on:
       - .github/workflows/listings.yml
 permissions:
   contents: write
+concurrency:
+  group: listings
+  cancel-in-progress: false
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -21,9 +24,10 @@ jobs:
         env:
           RENTCAST_API_KEY: ${{ secrets.RENTCAST_API_KEY }}
         run: python scripts/fetch_listings.py
-      - name: Commit if changed
+      - name: Commit data and usage ledger
+        if: always()
         run: |
           git config user.name "apt-bot"
           git config user.email "apt-bot@users.noreply.github.com"
-          git add data/listings.json
-          git diff --cached --quiet || (git commit -m "Refresh Manhattan listings" && git push)
+          git add data/listings.json data/api_usage.json 2>/dev/null || git add data/api_usage.json 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Refresh Manhattan listings [skip ci]" && git pull --rebase -q && git push)

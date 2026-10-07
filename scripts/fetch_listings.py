@@ -10,6 +10,37 @@ from datetime import datetime, timezone
 API = "https://api.rentcast.io/v1/listings/rental/long-term"
 MAX_PAGES = 2
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "listings.json")
+LEDGER = os.path.join(os.path.dirname(__file__), "..", "data", "api_usage.json")
+
+# Hard budget. RentCast's free plan allows 50 requests a month; we stop at 40 so a
+# miscount or a retry can never push us into paid overage. Every attempt counts,
+# including failed ones, because RentCast counts those too.
+MONTHLY_BUDGET = 40
+MIN_HOURS_BETWEEN_FETCHES = 48
+
+def load_ledger():
+    try:
+        with open(LEDGER) as f:
+            return json.load(f)
+    except (FileNotFoundError, ValueError):
+        return {}
+
+def save_ledger(led):
+    os.makedirs(os.path.dirname(LEDGER), exist_ok=True)
+    with open(LEDGER, "w") as f:
+        json.dump(led, f, indent=1, sort_keys=True)
+
+def month_key():
+    return datetime.now(timezone.utc).strftime("%Y-%m")
+
+def spend_one(led):
+    """Record one request before it is sent. Refuse if the month's budget is used up."""
+    m = month_key()
+    used = led.setdefault("months", {}).get(m, 0)
+    if used >= MONTHLY_BUDGET:
+        raise SystemExit(f"Budget reached: {used}/{MONTHLY_BUDGET} requests used in {m}. Skipping until next month.")
+    led["months"][m] = used + 1
+    save_ledger(led)
 
 # Manhattan ZIP codes -> neighborhood (approximate; ZIPs cross some boundaries)
 HOODS = {
@@ -24,9 +55,10 @@ HOODS = {
  "10128":"Yorkville","10162":"Upper East Side","10280":"Battery Park City","10282":"Battery Park City",
 }
 
-def fetch(key):
+def fetch(key, led):
     rows = []
     for page in range(MAX_PAGES):
+        spend_one(led)
         q = urllib.parse.urlencode({"city": "New York", "state": "NY", "status": "Active",
                                     "limit": 500, "offset": page * 500})
         req = urllib.request.Request(f"{API}?{q}", headers={"X-Api-Key": key.strip(), "Accept": "application/json",
@@ -99,14 +131,29 @@ def main():
     key = os.environ.get("RENTCAST_API_KEY")
     if not key:
         sys.exit("RENTCAST_API_KEY is not set")
-    rows = fetch(key)
+    led = load_ledger()
+    last = led.get("lastSuccess")
+    if last and os.environ.get("FORCE_REFRESH") != "1":
+        hours = (datetime.now(timezone.utc) - datetime.fromisoformat(last)).total_seconds() / 3600
+        if hours < MIN_HOURS_BETWEEN_FETCHES:
+            print(f"Last fetch was {hours:.0f}h ago (minimum {MIN_HOURS_BETWEEN_FETCHES}h). Skipping to save API budget.")
+            return
+    m = month_key()
+    print(f"Budget before run: {led.get('months', {}).get(m, 0)}/{MONTHLY_BUDGET} requests used in {m}")
+    rows = fetch(key, led)
+    led["lastSuccess"] = datetime.now(timezone.utc).isoformat(timespec="minutes")
+    save_ledger(led)
     live, kept, rejected = score(rows)
+    if not kept:
+        print(f"No usable listings this run ({len(rows)} fetched). Keeping the previous data file.")
+        return
     out = {"source": "RentCast", "market": "Manhattan", "fetchedAt": datetime.now(timezone.utc).isoformat(timespec="minutes"),
            "fetched": len(rows), "analyzed": len(live), "kept": len(kept), "rejected": rejected, "rents": rents_by_hood(live), "listings": kept[:60]}
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
         json.dump(out, f, indent=1)
     print(f"fetched {len(rows)}, analyzed {len(live)}, kept {len(kept)}, rejected {rejected}")
+    print(f"Budget after run: {led['months'][m]}/{MONTHLY_BUDGET} requests used in {m}")
 
 if __name__ == "__main__":
     main()
