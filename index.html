@@ -355,6 +355,9 @@ section.band{border-top:0}
 .guide .cost{border-top:1px dashed var(--line)}
 .guide-total{border-top:0;border-bottom:0}
 .sources a{font-weight:600}
+#main .deals{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){#main .deals{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){#main .deals{grid-template-columns:1fr}}
 .sheet h2{text-transform:none}
 .sheet .big{font-size:clamp(40px,5vw,56px)!important;line-height:1}
 .sheet .ph{max-height:46vh}
@@ -470,7 +473,7 @@ section.band{border-top:0}
     <div class="wrap">
       <div class="band-head">
         <h2>The broker who works for you</h2>
-        <p>The working product, on sample data. Open one. Turn one down.</p>
+        <p>The working product. Manhattan runs on live listings; the other cities are samples. Open one. Turn one down.</p>
       </div>
       <div class="appframe">
         <nav class="side" id="side" aria-label="App"></nav>
@@ -844,9 +847,10 @@ const DEALS=[
 ];
 function sourcesHTML(){return `<span class="eyebrow">Search the sources yourself</span>${(M.find||[]).map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`).join('')}`;}
 let LIVE=null;
+const cleanOffice=o=>{if(!o)return '';const parts=String(o).split(/\s+-\s+/);return parts.length===2&&parts[0].trim().toLowerCase()===parts[1].trim().toLowerCase()?parts[0].trim():String(o);};
 async function loadLive(){
   try{const r=await fetch('data/listings.json',{cache:'no-store'}); if(!r.ok)return; const j=await r.json(); if(!j.listings||!j.listings.length)return; LIVE=j;
-    MARKETS.newyork.count=j.analyzed||MARKETS.newyork.count; renderDeals(); renderMarketing(); renderRents();}catch(e){}
+    MARKETS.newyork.count=j.analyzed||MARKETS.newyork.count; renderDeals(); renderMarketing(); renderRents(); renderApp();}catch(e){}
 }
 function liveCard(x,i){
   const keys=Object.keys(ART); const k=keys[i%keys.length]; const plain=v=>'$'+Math.round(v).toLocaleString('en-US');
@@ -854,7 +858,7 @@ function liveCard(x,i){
   const tag='button'; const href=` type="button" data-live="${i}"`;
   return `<${tag} class="deal live"${href} aria-label="${esc(name)}">
     <div class="dp">${pic(k,L[0].photo)}<span class="under" title="under typical rent">−${plain(x.under)}/mo</span><span class="sc">${Math.round(x.pct)}%</span></div>
-    <div class="db"><h3>${esc(name)}</h3><span class="where">${esc(x.hood)}, Manhattan${x.office?' · '+esc(x.office):''}</span>
+    <div class="db"><h3>${esc(name)}</h3><span class="where">${esc(x.hood)}, Manhattan${x.office?' · '+esc(cleanOffice(x.office)):''}</span>
     <span class="price"><b>${plain(x.price)}</b><span class="muted small">/mo asking · typical ${plain(x.median)}</span></span>
     <span class="feats">${f.map(t=>`<span>${esc(t)}</span>`).join('')}</span></div></${tag}>`;
 }
@@ -876,7 +880,7 @@ function openLive(i){
      <p class="small muted" style="margin-top:10px">Typical = median asking rent for the same size in the same neighborhood (all of Manhattan when there are fewer than 8 to compare), from ${LIVE.analyzed.toLocaleString()} listings checked ${esc(new Date(LIVE.fetchedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}))}. Fees and utilities aren't in RentCast's data, so ask about them.</p></div>
    <div class="box"><p class="eyebrow">the place</p><dl class="kv">${row('Bedrooms',x.beds===0?'Studio':String(x.beds))}${row('Bathrooms',x.baths!=null?String(x.baths):'')}${row('Size',x.sqft?x.sqft.toLocaleString()+' sqft':'Not listed')}${row('Built',x.built?String(x.built):'')}${row('Type',x.type?esc(x.type):'')}${row('Listed',x.listed?esc(new Date(x.listed).toLocaleDateString('en-US',{month:'short',day:'numeric'})):'')}${row('Last seen',x.seen?esc(new Date(x.seen).toLocaleDateString('en-US',{month:'short',day:'numeric'})):'')}</dl></div></div>
    <div class="box"><p class="eyebrow">before you go</p><p class="small" style="margin-top:6px">Look at the photos for wall-to-wall carpet, coil-burner stoves and tired cabinets. APT can't see those on this listing yet.</p></div>
-   <div class="acts">${site?`<a class="btn" href="${esc(site)}" target="_blank" rel="noopener">See it on ${esc(x.office||'the listing site')}</a>`:''}${x.officePhone?`<span class="btn ghost" style="cursor:text;user-select:all">${esc(x.office||'Listing office')} · ${esc(x.officePhone)}</span>`:''}<a class="btn ghost" href="${map}" target="_blank" rel="noopener">Map</a></div>
+   <div class="acts">${site?`<a class="btn" href="${esc(site)}" target="_blank" rel="noopener">See it on ${esc(cleanOffice(x.office)||'the listing site')}</a>`:''}${x.officePhone?`<span class="btn ghost" style="cursor:text;user-select:all">${esc(cleanOffice(x.office)||'Listing office')} · ${esc(x.officePhone)}</span>`:''}<a class="btn ghost" href="${map}" target="_blank" rel="noopener">Map</a></div>
    <p class="small muted">Source: RentCast. Availability isn't verified; confirm with the listing office.</p>
   </div></div></div>`;
   document.querySelector('#sheetHost [data-close]').focus();
@@ -973,11 +977,11 @@ function runDemo(animate){
 /* ===================== APP SHELL ===================== */
 const VIEWS=[['home','Home'],['discover','Discover'],['ask','Ask APT'],['saved','Saved'],['compare','Compare'],['savings','Savings'],['map','Map'],['rejected','Rejected'],['tours','Tours'],['apps','Applications'],['lease','Lease']];
 function renderSide(){
-  const n={discover:shortlist().length,saved:S.saved.size,rejected:(M.count-8)+Object.keys(S.rejected).length};
+  const n={discover:(LIVE&&S.market==='newyork')?LIVE.listings.length:shortlist().length,saved:S.saved.size,rejected:(M.count-8)+Object.keys(S.rejected).length};
   document.getElementById('side').innerHTML=`<span class="eyebrow lbl">APT</span>`+VIEWS.map(([k,l])=>`<button data-view="${k}" ${S.view===k?'aria-current="page"':''}>${l}${n[k]!=null?`<span class="badge">${n[k].toLocaleString()}</span>`:''}</button>`).join('');
 }
 function topBar(){
-  return `<div class="mkt"><div class="seg" role="group" aria-label="Market">${['newyork','madison','chicago','london'].map(k=>[k,MARKETS[k]]).map(([k,m])=>`<button data-market="${k}" aria-pressed="${S.market===k}">${m.name}</button>`).join('')}</div><span class="demo-tag">Sample data</span></div>`;
+  return `<div class="mkt"><div class="seg" role="group" aria-label="Market">${['newyork','madison','chicago','london'].map(k=>[k,MARKETS[k]]).map(([k,m])=>`<button data-market="${k}" aria-pressed="${S.market===k}">${m.name}</button>`).join('')}</div><span class="demo-tag">${LIVE&&S.market==='newyork'?'Live data':'Sample data'}</span></div>`;
 }
 function go(v){S.view=v;try{localStorage.setItem('apt-view',v)}catch(e){};renderApp();}
 function renderApp(){
@@ -1046,7 +1050,21 @@ function feedCard(a,i){
   <div class="acts"><button class="btn sm" data-open="${a.id}">Why?</button><button class="btn sm ghost" data-save="${a.id}">${S.saved.has(a.id)?'Saved':'Save'}</button><button class="btn sm ghost" data-reject="${a.id}" style="color:var(--no);border-color:var(--no)">Reject</button></div></div>
   <div class="score"><span class="eyebrow">APT Score</span><span class="big">${a.score}</span></div></article>`;
 }
+function vDiscoverLive(){
+  const sorts=[['value','Best deal'],['cheap','Cheapest'],['cuts','Price cuts'],['new','Newest']], beds=[['any','Any size'],['0','Studio'],['1','1 bed'],['2','2 bed']];
+  S.liveSort=S.liveSort||'value'; S.liveBeds=S.liveBeds||'any';
+  let list=LIVE.listings.map((x,i)=>({x,i}));
+  if(S.liveBeds!=='any') list=list.filter(o=>String(o.x.beds)===S.liveBeds);
+  const by={value:(a,b)=>b.x.pct-a.x.pct,cheap:(a,b)=>a.x.price-b.x.price,cuts:(a,b)=>(b.x.cuts-a.x.cuts)||(b.x.pct-a.x.pct),new:(a,b)=>String(b.x.listed||'').localeCompare(String(a.x.listed||''))}[S.liveSort];
+  list.sort(by);
+  return `<div class="vh"><div><p class="eyebrow">discover · live</p><h2 style="margin-top:6px">${list.length} real deals in Manhattan</h2><p class="small muted" style="margin-top:6px">The best ${LIVE.listings.length} of ${LIVE.kept.toLocaleString()} listings under typical rent, from ${LIVE.analyzed.toLocaleString()} checked ${esc(new Date(LIVE.fetchedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}))}. Tap one for the details.</p></div></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px"><div class="seg" role="group" aria-label="Sort">${sorts.map(([k,l])=>`<button data-live-sort="${k}" aria-pressed="${S.liveSort===k}">${l}</button>`).join('')}</div>
+  <div class="seg" role="group" aria-label="Size">${beds.map(([k,l])=>`<button data-live-beds="${k}" aria-pressed="${S.liveBeds===k}">${l}</button>`).join('')}</div></div>
+  <p class="sources" style="margin:0 0 18px">${sourcesHTML()}</p>
+  <div class="deals">${list.map(o=>liveCard(o.x,o.i)).join('')||'<p class="muted">Nothing in this size right now.</p>'}</div>`;
+}
 function vDiscover(){
+  if(LIVE && S.market==='newyork') return vDiscoverLive();
   const list=shortlist(), modes=[['exact','Exact'],['match','Best match'],['value','Best value'],['cheap','Cheapest good'],['dream','Dream']];
   const desc={exact:'Only apartments that meet every hard requirement.',match:'Ranked by fit to your whole profile.',value:'Ranked by quality per dollar of true cost.',cheap:'The least expensive apartments APT still considers good.',dream:'Budget relaxed by about 12% to show exceptional places.'};
   return `<div class="vh"><div><p class="eyebrow">Discover</p><h2 style="margin-top:6px">${list.length} apartments worth seeing</h2><p class="small muted" style="margin-top:6px">Chosen from ${M.count.toLocaleString()} listings. ${desc[S.mode]}</p></div>
@@ -1251,6 +1269,8 @@ document.addEventListener('click',e=>{
   if(d.mode){S.mode=d.mode;renderApp();return;}
   if(d.open){openSheet(d.open);return;}
   if(d.live!==undefined){openLive(+d.live);return;}
+  if(d.liveSort){S.liveSort=d.liveSort;renderApp();return;}
+  if(d.liveBeds){S.liveBeds=d.liveBeds;renderApp();return;}
   if(d.save){S.saved.has(d.save)?S.saved.delete(d.save):(S.saved.add(d.save),S.memory.push({t:'Today',e:'Saved '+byId(d.save).name,w:'Raised weight on its strongest traits.'}));toast(S.saved.has(d.save)?'Saved':'Removed from saved');renderApp();if(document.querySelector('.sheet'))openSheet(d.save);return;}
   if(d.reject){rejectPrompt(d.reject);return;}
   if(d.reason){const a=byId(d.rid);S.rejected[d.rid]=d.reason;S.saved.delete(d.rid);S.memory.push({t:'Today',e:'Rejected '+a.name+' '+a.unit,w:d.reason+'. '+({'Too dark':'Raised weight on natural light.','Too loud':'Raised weight on noise.','Too expensive':'Lowered your comfortable price.','Bad layout':'Raised weight on usable space.','Bad location':'Lowered weight on this area.'}[d.reason]||'Noted.')});closeSheet();toast('Rejected. APT learned: '+d.reason.toLowerCase());renderApp();return;}
