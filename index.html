@@ -3,13 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="APT reads every listing in town, declines nearly all of them, and tells you which few deserve a Saturday morning.">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="description" content="APT reads every listing, turns down nearly all of them, and shows you the few worth seeing.">
+<meta name="theme-color" content="#EDF5EF">
 <meta property="og:title" content="APT">
-<meta property="og:description" content="The apartment search that says no.">
+<meta property="og:description" content="Fewer apartments. Better ones.">
 <meta property="og:image" content="https://cdn.midjourney.com/a79ef013-5cca-4417-b943-789dd1ec63fc/0_1_1024_N.webp">
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
-<script>window.APT_IMAGES=true</script>
 <title>APT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +21,7 @@
 <style>
 /* Layout: editorial magazine spread up top (thesis + live demo), then the working product as a framed app with side navigation that collapses to a tab rail on phones. */
 :root{
-  --bg:#FFFFFF; --surface:#FAFAF7; --raised:#FFFFFF; --ink:#121212; --muted:#5C5C5C; --line:#DADADA;
+  --bg:#EDF5EF; --surface:#F4F9F5; --raised:#FAFDFB; --ink:#14201A; --muted:#55645B; --line:#CCDCD1;
   --no:#B0152F; --no-soft:#F7E3E6; --save:#2A6447; --save-soft:#E3EFE7; --warn:#8E5E12; --warn-soft:#F6ECDA;
   --focus:#2C5B8A;
   --display:"New Yorker","Libre Caslon Text",Georgia,serif;
@@ -34,10 +33,10 @@
   --r:0;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#111111; --surface:#181818; --raised:#1D1D1D; --ink:#EDEBE6; --muted:#A3A19B; --line:#333333;
+  --bg:#101714; --surface:#16201B; --raised:#1B2620; --ink:#E7EFE9; --muted:#9DB0A4; --line:#2B3A31;
   --no:#E5707F; --no-soft:#3A1E23; --save:#6DC79C; --save-soft:#183126; --warn:#E3B062; --warn-soft:#3A2C16; --focus:#8DB7E3; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#111111; --surface:#181818; --raised:#1D1D1D; --ink:#EDEBE6; --muted:#A3A19B; --line:#333333;
+  --bg:#101714; --surface:#16201B; --raised:#1B2620; --ink:#E7EFE9; --muted:#9DB0A4; --line:#2B3A31;
   --no:#E5707F; --no-soft:#3A1E23; --save:#6DC79C; --save-soft:#183126; --warn:#E3B062; --warn-soft:#3A2C16; --focus:#8DB7E3; color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -74,18 +73,18 @@ button{cursor:pointer}
 
 /* hero */
 .hero{padding-block:clamp(40px,7vw,88px) 40px}
-.hero-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(24px,5vw,64px);align-items:end}
-.hero h1{font-size:clamp(44px,6.6vw,96px);letter-spacing:0}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:clamp(24px,4vw,48px);align-items:center}
+.hero h1{font-size:clamp(40px,4.8vw,76px);letter-spacing:0}
 .hero h1 em{font-style:normal;color:var(--no)}
 .hero .sub{font-size:clamp(17px,1.6vw,20px);max-width:34em;margin-top:22px;color:var(--muted)}
 .hero .ctas{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
 .hero-card{background:var(--raised);border:1px solid var(--line);border-radius:2px;overflow:hidden}
-.hero-card .plate{aspect-ratio:400/220;max-width:100%;display:block}
+.hero-card .plate{aspect-ratio:20/13;max-width:100%;display:block;position:relative}
 .hero-card .plate svg{width:100%;height:100%;display:block}
 .hero-card .body{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid var(--line)}
 .big{font:700 clamp(38px,4.2vw,56px)/1 var(--chelt);font-stretch:70%;font-variant-numeric:lining-nums tabular-nums}
 .big.save{color:var(--save)}
-@media (max-width:860px){.hero-grid{grid-template-columns:1fr}}
+@media (max-width:860px){.hero-grid{grid-template-columns:1fr}.hero-card{order:-1}}
 
 /* section */
 section.band{padding-block:clamp(48px,7vw,96px);border-top:1px solid var(--ink)}
@@ -174,14 +173,14 @@ section.band{padding-block:clamp(48px,7vw,96px);border-top:1px solid var(--ink)}
 
 /* feed */
 .feed{display:grid;gap:14px}
-.card{display:grid;grid-template-columns:260px minmax(0,1fr) 150px;gap:0;background:var(--raised);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.card .ph{position:relative;min-height:170px}
+.card{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);grid-template-rows:auto auto;gap:0;background:var(--raised);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.card .ph{position:relative;grid-row:1 / span 2;min-height:clamp(320px,34vw,500px)}
 .card .ph svg{position:absolute;inset:0;width:100%;height:100%}
 .card .rank{position:absolute;left:10px;top:10px;font:700 16px var(--chelt);font-stretch:70%;background:var(--raised);color:var(--ink);padding:4px 8px;border-radius:4px}
 .card .info{padding:16px 18px;min-width:0;display:grid;gap:8px;align-content:start}
 .card .info h3{font-size:24px}
 .card .tagline{justify-self:start;font:400 13px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--save);background:var(--save-soft);padding:6px 9px;border-radius:4px}
-.card .score{border-left:1px solid var(--line);padding:16px;display:grid;align-content:space-between;gap:10px;text-align:right}
+.card .score{border-top:1px solid var(--line);padding:14px 18px;display:flex;justify-content:space-between;align-items:end;gap:10px}
 .card .score .big{font-size:46px}
 .reasons{display:grid;gap:3px;font-size:14px;color:var(--muted)}
 .reasons li{list-style:none;padding-left:14px;position:relative}
@@ -190,7 +189,7 @@ section.band{padding-block:clamp(48px,7vw,96px);border-top:1px solid var(--ink)}
 .acts{display:flex;gap:8px;flex-wrap:wrap}
 .cost-line{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;align-items:baseline}
 .cost-line .hid{color:var(--no);font-family:var(--mono);font-size:13px}
-@media (max-width:860px){.card{grid-template-columns:1fr}.card .ph{min-height:0;aspect-ratio:400/200}.card .score{border-left:0;border-top:1px solid var(--line);text-align:left;grid-auto-flow:column;align-items:center}}
+@media (max-width:860px){.card{grid-template-columns:1fr}.card .ph{grid-row:auto;min-height:0;aspect-ratio:20/13}}
 
 /* tags for data provenance */
 .q{display:inline-block;font:400 11px/1 var(--label);letter-spacing:.05em;padding:3px 5px;border-radius:3px;text-transform:uppercase;vertical-align:middle;border:1px solid currentColor}
@@ -214,8 +213,8 @@ thead th.winner{color:var(--save)}
 
 /* sheet */
 .sheet{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,var(--ink) 40%,transparent);display:flex;justify-content:flex-end}
-.sheet .pane{width:min(760px,100%);height:100%;overflow-y:auto;background:var(--surface);border-left:1px solid var(--line);padding:0 0 calc(40px + env(safe-area-inset-bottom,0px))}
-.sheet .ph{aspect-ratio:400/210;max-width:100%}
+.sheet .pane{width:min(980px,100%);height:100%;overflow-y:auto;background:var(--surface);border-left:1px solid var(--line);padding:0 0 calc(40px + env(safe-area-inset-bottom,0px))}
+.sheet .ph{aspect-ratio:20/13;max-width:100%;position:relative}
 .sheet .ph svg{width:100%;height:100%;display:block}
 .sheet .in{padding:22px clamp(16px,3vw,28px);display:grid;gap:18px}
 .sheet .close{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--surface);border-bottom:1px solid var(--line);z-index:2}
@@ -253,8 +252,8 @@ textarea.field{width:100%;min-height:96px;border:1px solid var(--line);backgroun
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:2px;font-size:14px;z-index:80}
 
 .map svg{width:100%;height:auto;display:block}
-img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--surface)}
-.card .ph img.art{position:absolute;inset:0}
+img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;background:var(--surface)}
+.ph svg,.plate svg{position:absolute;inset:0;width:100%;height:100%}
 .foot{padding-block:40px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 .foot .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .price{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -266,7 +265,7 @@ img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--s
 
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="#top">APT <small>The apartment search that says no</small></a>
+    <a class="mark" href="#top">APT <small>Fewer apartments. Better ones.</small></a>
     <nav aria-label="Site">
       <a href="#demo">See it work</a>
       <a href="#no">The No engine</a>
@@ -283,14 +282,14 @@ img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--s
       <div>
         <p class="eyebrow">Your AI apartment search assistant</p>
         <h1 style="margin-top:14px">Find an apartment.<br><em>Not 500 of them.</em></h1>
-        <p class="sub">APT reads every listing in town so you don't have to, declines nearly all of them, and tells you, with reasons, which few deserve a Saturday morning. It also finds the money: the fee buried on page four, the free month nobody mentioned, the landlord who has quietly cut the rent twice.</p>
+        <p class="sub">APT reads every listing, turns down nearly all of them, and shows you the few worth seeing.</p>
         <div class="ctas"><a class="btn" href="#app">Start searching</a><a class="btn ghost" href="#demo">See APT in action</a></div>
       </div>
       <div class="hero-card" aria-label="Example result">
         <div class="plate" id="heroPlate"></div>
         <div class="body">
           <div class="stat"><span class="eyebrow">APT found</span><span class="big"><span id="heroMatches">8</span> matches</span><span class="small muted" id="heroOf"></span></div>
-          <div class="stat"><span class="eyebrow">Saved you</span><span class="big save" id="heroSave"></span><span class="small muted">a year, against the place you loved first</span></div>
+          <div class="stat"><span class="eyebrow">Saved you</span><span class="big save" id="heroSave"></span><span class="small muted">a year</span></div>
         </div>
       </div>
     </div>
@@ -300,7 +299,7 @@ img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--s
     <div class="wrap">
       <div class="band-head">
         <h2>A search that knows when to stop</h2>
-        <p>Describe the place the way you'd describe it to a friend over dinner. APT gathers every listing it may lawfully read, discards the duplicates, adds up what each one really costs, and keeps the handful worth your time. The rest it declines, politely, with reasons.</p>
+        <p>Describe the place. APT adds up the real costs and keeps the few worth your time.</p>
       </div>
       <div class="demo">
         <div class="panel">
@@ -339,7 +338,7 @@ img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--s
     <div class="wrap">
       <div class="band-head">
         <h2>The art of no</h2>
-        <p>Most rental sites are paid, one way or another, to show you more. APT is built to show you less. Each refusal comes with its reasoning, and, where one exists, a better address.</p>
+        <p>Other sites show you more. APT shows you less, and says why.</p>
       </div>
       <div class="nos" id="noCards"></div>
     </div>
@@ -349,7 +348,7 @@ img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--s
     <div class="wrap">
       <div class="band-head">
         <h2>The broker who works for you</h2>
-        <p>What follows is the working product, running on a sample search. Change cities, change your mind, open an apartment and ask it to explain itself, or turn one down and tell APT why. It takes notes.</p>
+        <p>The working product, on sample data. Open one. Turn one down.</p>
       </div>
       <div class="appframe">
         <nav class="side" id="side" aria-label="App"></nav>
@@ -362,7 +361,7 @@ img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--s
     <div class="wrap">
       <div class="band-head">
         <h2>How it works, day after day</h2>
-        <p>Nine steps, repeated every morning of your search, each a little better informed by the last thing you liked, refused, toured or signed.</p>
+        <p>Every day, a little sharper.</p>
       </div>
       <div class="loop" id="loopEl"></div>
     </div>
@@ -372,18 +371,18 @@ img.art{display:block;width:100%;height:100%;object-fit:cover;background:var(--s
     <div class="wrap">
       <div class="band-head">
         <h2>Paid by renters, and only by renters</h2>
-        <p>No one can buy a better rank. If a listing is ever sponsored, it says so plainly and sits outside the ranked feed, like an advertisement in a magazine, which is what it is.</p>
+        <p>No one can buy a better rank. Ads are labeled and kept apart.</p>
       </div>
       <div class="price">
-        <div class="box"><p class="eyebrow">Free</p><h3 style="margin-top:8px">Search</h3><p class="muted small" style="margin-top:8px">Search in plain English, a short list instead of a long one, the true monthly cost of everything, and the reasons behind every no.</p></div>
-        <div class="box"><p class="eyebrow">APT Premium</p><h3 style="margin-top:8px">Decide</h3><p class="muted small" style="margin-top:8px">A second pair of eyes on photos and floor plans, a watch on prices, a nudge when there's money to be saved, a draft when it's time to haggle, and a careful read of the lease.</p></div>
-        <div class="box"><p class="eyebrow">Partners</p><h3 style="margin-top:8px">Brokers &amp; managers</h3><p class="muted small" style="margin-top:8px">Referrals and introductions where the law and the contract allow. Partners may buy our attention; they may not buy your ranking.</p></div>
+        <div class="box"><p class="eyebrow">Free</p><h3 style="margin-top:8px">Search</h3><p class="muted small" style="margin-top:8px">Plain-English search. A short list. The real monthly cost.</p></div>
+        <div class="box"><p class="eyebrow">APT Premium</p><h3 style="margin-top:8px">Decide</h3><p class="muted small" style="margin-top:8px">Price alerts, negotiation help, lease review.</p></div>
+        <div class="box"><p class="eyebrow">Partners</p><h3 style="margin-top:8px">Brokers &amp; managers</h3><p class="muted small" style="margin-top:8px">Referrals where allowed. Never rank.</p></div>
       </div>
     </div>
   </section>
 </main>
 
-<footer class="foot"><div class="wrap"><span>APT · the-apt.world</span><span>All apartments, buildings and figures on this page are sample data for demonstration.</span></div></footer>
+<footer class="foot"><div class="wrap"><span>APT · Fewer apartments. Better ones.</span><span>All apartments, buildings and figures on this page are sample data for demonstration.</span></div></footer>
 
 <div id="sheetHost"></div>
 <div id="toastHost"></div>
@@ -521,23 +520,23 @@ const DREAM = {id:'belvedere',rank:'D',name:'Belvedere House',unit:'PH2',hood:9,
 
 const REJ = [
  {name:'Corrigan Tower',unit:'1408',rent:2900,cat:'Hidden fees',title:'A bargain, until the fees arrive.',
-  body:'This apartment is %D300% cheaper than your target, but the building charges a %D175% monthly amenity fee and has no in-unit laundry.',
-  kv:[['Advertised rent',2900],['Amenity fee',175],['Utilities (est.)',140],['True monthly cost',3215]],foot:'True monthly cost is higher than three better options on your shortlist.'},
+  body:'%D300% under target, plus a %D175% monthly amenity fee. No laundry.',
+  kv:[['Advertised rent',2900],['Amenity fee',175],['Utilities (est.)',140],['True monthly cost',3215]],foot:'Three better options cost less.'},
  {name:'Ashby Court',unit:'2R',rent:2550,cat:'Too noisy',title:'Lovely in pictures, loud at 2 a.m.',
-  body:'The photos look good, but the bedroom appears to face a six-lane arterial road. Based on building orientation and traffic counts, likely nighttime noise is HIGH.',
-  kv:[['Noise score',31],['Confidence','Medium'],['Traffic','~28,000 vehicles/day']],foot:'APT recommends rejecting it.',raw:true},
+  body:'The bedroom faces a six-lane road. Nighttime noise: high.',
+  kv:[['Noise score',31],['Confidence','Medium'],['Traffic','~28,000 vehicles/day']],foot:'Rejected.',raw:true},
  {name:'Merrow Flats',unit:'1A',rent:2480,cat:'Poor fit',title:'Handsome, and wrong for you.',
-  body:'It scores poorly on the things you said matter most. It is also on the ground floor, one of your dealbreakers.',
-  kv:[['Natural light','42/100'],['Storage','38/100'],['Noise','31/100']],foot:'APT recommends rejecting it.',raw:true},
+  body:'Low on what you care about. Ground floor, too.',
+  kv:[['Natural light','42/100'],['Storage','38/100'],['Noise','31/100']],foot:'Rejected.',raw:true},
  {name:'Pellham Point',unit:'9D',rent:2850,cat:'Too expensive',title:'Affordable, right up until the arithmetic.',
-  body:'True monthly cost exceeds your budget after mandatory fees, utilities and the required parking space.',
-  kv:[['Advertised rent',2850],['Mandatory fees',250],['Utilities (est.)',120],['Parking (required)',200],['True monthly cost',3420]],foot:'APT also found Fieldstone Lofts 0.4 miles away at %FIELD% true cost, with a higher APT Score.'},
+  body:'Over budget once fees and parking are added.',
+  kv:[['Advertised rent',2850],['Mandatory fees',250],['Utilities (est.)',120],['Parking (required)',200],['True monthly cost',3420]],foot:'Better: Fieldstone Lofts, %FIELD%, 0.4 mi away.'},
  {name:'Garnet Lane',unit:'3',rent:2390,cat:'Bad listing',title:'A listing with a loose relationship to the truth.',
-  body:'The same photos appear on three different units. The listing was edited 11 times in two weeks while the move-in date kept changing.',
-  kv:[['Listing quality','48/100'],['Duplicate photos','3 listings'],['Availability','Inconsistent']],foot:'APT will check again if the owner verifies it.',raw:true},
+  body:'Same photos on three units. Edited 11 times in two weeks.',
+  kv:[['Listing quality','48/100'],['Duplicate photos','3 listings'],['Availability','Inconsistent']],foot:'APT will recheck if it\'s verified.',raw:true},
  {name:'Unlisted building',unit:'—',rent:1650,cat:'Suspicious price',title:'If it seems too good, it is.',
-  body:'Rent is about 40% below every comparable 1-bedroom nearby, and the poster asks for a deposit before any tour. This pattern often means a rental scam.',
-  kv:[['Comparable range','%COMPS%'],['Deposit before tour','Requested'],['Photos found elsewhere','Yes']],foot:'Never send money before you have seen the unit and verified the landlord.',raw:true}
+  body:'40% below everything nearby, and a deposit before the tour. Likely a scam.',
+  kv:[['Comparable range','%COMPS%'],['Deposit before tour','Requested'],['Photos found elsewhere','Yes']],foot:'Never pay before you see it.',raw:true}
 ];
 const REASONS = [['Too expensive (true cost)',612],['Too noisy',287],['Poor light',241],['Poor fit to your profile',220],['Bad value',198],['Hidden fees',176],['Stale or misleading listing',100]];
 
@@ -638,7 +637,7 @@ function plate(p){
 const ART={hero:'a79ef013-5cca-4417-b943-789dd1ec63fc/0_1',larkspur:'a055922f-65d1-4b7a-ac29-47b98f39541c/0_1',ninebark:'7a57d0b3-3fb1-43c8-bae9-b38b60b9c62a/0_0',fieldstone:'d7938473-cdef-40c3-b0aa-427aa99d2c6c/0_1',juniper:'7460b79b-5315-40f9-af5f-716a8ccb4892/0_0',langdon:'ba9a0596-05f3-4bee-ae9e-315b7b9e39e8/0_1',thimble:'f8dc3fce-c03c-4157-a0a8-9adc7c033050/0_0',orchard:'da86de65-fbaa-481c-8de4-03648fbabdbc/0_1',bassett:'7a3af712-3a74-4257-aa0e-89896778c814/0_2',hartwell:'5e5498a6-f431-41a1-8ef3-d059479cec29/0_1',belvedere:'b051f3bc-44bc-4d5b-84a4-48b1d5c39aae/0_0'};
 /* On the live site (window.APT_IMAGES), use the Midjourney illustrations; elsewhere draw the SVG plate. */
 function pic(key,p){
-  if(window.APT_IMAGES && ART[key]) return `<img class="art" src="https://cdn.midjourney.com/${ART[key]}_1024_N.webp" alt="Illustration of ${esc((byId(key)||{name:'an apartment'}).name)}, not a listing photo" loading="lazy" decoding="async" onerror="this.outerHTML=window.__plateFallback('${key}')">`;
+  if(ART[key]){const b=`https://cdn.midjourney.com/${ART[key]}`; return `<img class="art" src="${b}_1024_N.webp" srcset="${b}_1024_N.webp 1024w, ${b}_2048_N.webp 2048w" sizes="(max-width: 860px) 100vw, 66vw" alt="Illustration, not a listing photo" loading="lazy" decoding="async" onerror="this.outerHTML=window.__plateFallback('${key}')">`;}
   return plate(p);
 }
 window.__plateFallback = k => plate((byId(k)||L[0]).photo);
@@ -743,7 +742,7 @@ function renderApp(){
 /* ---------- views ---------- */
 function vHome(){
   const top=shortlist(), best=L[0], d=trueCost(FAV)-trueCost(best);
-  return `<div class="vh"><div><p class="eyebrow">Your APT update · Tuesday</p><h2 style="margin-top:6px">Find your APT</h2><p class="muted" style="margin-top:6px;font-style:italic">Three new arrivals overnight, one price cut, and a better idea than the one you had last week.</p></div><button class="btn save" data-act="better" data-id="hartwell">Find me a better deal</button></div>
+  return `<div class="vh"><div><p class="eyebrow">Your APT update · Tuesday</p><h2 style="margin-top:6px">Find your APT</h2><p class="muted" style="margin-top:6px;font-style:italic">Three new. One price cut. One better idea.</p></div><button class="btn save" data-act="better" data-id="hartwell">Find me a better deal</button></div>
   <div class="grid2">
     <div class="box">
       <p class="eyebrow">Your search</p>
@@ -793,16 +792,16 @@ function feedCard(a,i){
   const hid=feesTotal(a);
   return `<article class="card"><div class="ph">${pic(a.id,a.photo)}<span class="rank">#${i+1}</span></div>
   <div class="info"><span class="tagline">${esc(a.tag)}</span><h3>${esc(a.name)} <span class="muted" style="font-size:.7em">${esc(a.unit)}</span></h3><p class="line">${esc(a.line)}</p>
-  <p class="small muted">${esc(hood(a))} · ${area(a.sqft)} · ${esc(a.floor)} floor · ${a.transit} min to ${esc(M.transit)}</p>
-  <div class="cost-line"><span>Advertised <b class="mono">${money(a.rent)}</b></span><span>True cost <b class="mono">${money(trueCost(a))}</b></span><span class="hid">+${money(hid)}/mo fees &amp; estimates</span>${a.conc?`<span class="mono" style="color:var(--save)">Effective ${money(effTrue(a))}</span>`:''}</div>
-  <ul class="reasons">${a.why.slice(0,2).map(w=>`<li>${esc(expandWhy(a,w))}</li>`).join('')}</ul>
-  <div class="acts"><button class="btn sm" data-open="${a.id}">Why? Open</button><button class="btn sm ghost" data-save="${a.id}">${S.saved.has(a.id)?'Saved':'Save'}</button><button class="btn sm ghost" data-reject="${a.id}" style="color:var(--no);border-color:var(--no)">Reject</button></div></div>
-  <div class="score"><div><span class="eyebrow">APT Score</span><div class="big">${a.score}</div></div><div class="small"><div class="muted">Fit ${a.fit}%</div><div class="muted">Quality ${a.q}</div><div class="muted">Value ${a.v}</div></div></div></article>`;
+  <p class="small muted">${esc(hood(a))} · ${a.transit} min to ${esc(M.transit)}</p>
+  <p class="cost-line"><b class="mono" style="font-size:20px">${money(effTrue(a))}</b><span class="muted">/mo, everything in</span></p>
+  <ul class="reasons">${a.why.slice(0,1).map(w=>`<li>${esc(expandWhy(a,w))}</li>`).join('')}</ul>
+  <div class="acts"><button class="btn sm" data-open="${a.id}">Why?</button><button class="btn sm ghost" data-save="${a.id}">${S.saved.has(a.id)?'Saved':'Save'}</button><button class="btn sm ghost" data-reject="${a.id}" style="color:var(--no);border-color:var(--no)">Reject</button></div></div>
+  <div class="score"><span class="eyebrow">APT Score</span><span class="big">${a.score}</span></div></article>`;
 }
 function vDiscover(){
   const list=shortlist(), modes=[['exact','Exact'],['match','Best match'],['value','Best value'],['cheap','Cheapest good'],['dream','Dream']];
   const desc={exact:'Only apartments that meet every hard requirement.',match:'Ranked by fit to your whole profile.',value:'Ranked by quality per dollar of true cost.',cheap:'The least expensive apartments APT still considers good.',dream:'Budget relaxed by about 12% to show exceptional places.'};
-  return `<div class="vh"><div><p class="eyebrow">Discover</p><h2 style="margin-top:6px">${list.length} apartments worth seeing</h2><p class="small muted" style="margin-top:6px">From ${M.count.toLocaleString()} listings (${M.raw.toLocaleString()} postings across ${M.sources} sources, duplicates merged). ${desc[S.mode]}</p></div>
+  return `<div class="vh"><div><p class="eyebrow">Discover</p><h2 style="margin-top:6px">${list.length} apartments worth seeing</h2><p class="small muted" style="margin-top:6px">Chosen from ${M.count.toLocaleString()} listings. ${desc[S.mode]}</p></div>
   <div class="seg" role="group" aria-label="Search mode">${modes.map(([k,l])=>`<button data-mode="${k}" aria-pressed="${S.mode===k}">${l}</button>`).join('')}</div></div>
   <div class="feed">${list.length?list.map(feedCard).join(''):`<div class="box"><p>Nothing meets every hard requirement right now. APT will alert you when something does. Best match mode shows the closest options.</p></div>`}</div>`;
 }
