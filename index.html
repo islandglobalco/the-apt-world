@@ -7,7 +7,8 @@
 <meta name="theme-color" content="#EDEFE8">
 <meta property="og:title" content="APT">
 <meta property="og:description" content="Fewer apartments. Better ones.">
-<meta property="og:image" content="https://cdn.midjourney.com/a79ef013-5cca-4417-b943-789dd1ec63fc/0_1_1024_N.webp">
+<meta property="og:image" content="https://cdn.midjourney.com/b617bdb1-74b0-4771-893a-f9fe13ca927b/0_1_1024_N.webp">
+<link rel="preload" as="image" href="https://cdn.midjourney.com/b617bdb1-74b0-4771-893a-f9fe13ca927b/0_1_2048_N.webp">
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
 <title>APT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -57,7 +58,11 @@ button{cursor:pointer}
 .small{font-size:13px}
 
 /* top bar */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--bg);border-bottom:1px solid var(--ink)}
+.top{position:fixed;left:0;right:0;top:0;padding-top:env(safe-area-inset-top,0px);z-index:30;background:transparent;border-bottom:1px solid rgba(255,255,255,.28);transition:background .3s,border-color .3s}
+.top:not(.solid) .mark,.top:not(.solid) .mark small,.top:not(.solid) nav a{color:#fff}
+.top:not(.solid) .btn{background:#fff;color:#151815;border-color:#fff}
+.top.solid{background:var(--bg);border-bottom-color:var(--ink)}
+section.band,#app{scroll-margin-top:64px}
 .top .wrap{display:flex;align-items:center;gap:24px;padding-block:12px}
 .mark{font:400 28px/1 var(--display);letter-spacing:.03em;text-decoration:none;color:var(--ink);display:flex;align-items:baseline;gap:10px}
 .mark small{font:400 12px var(--label);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
@@ -72,19 +77,25 @@ button{cursor:pointer}
 @media (max-width:760px){.top nav{display:none}}
 
 /* hero */
-.hero{padding-block:clamp(40px,7vw,88px) 40px}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:clamp(24px,4vw,48px);align-items:center}
-.hero h1{font-size:clamp(40px,4.8vw,76px);letter-spacing:0}
-.hero h1 em{font-style:normal;color:var(--no)}
-.hero .sub{font-size:clamp(17px,1.6vw,20px);max-width:34em;margin-top:22px;color:var(--muted)}
-.hero .ctas{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
-.hero-card{background:var(--raised);border:1px solid var(--line);border-radius:2px;overflow:hidden}
-.hero-card .plate{aspect-ratio:20/13;max-width:100%;display:block;position:relative}
-.hero-card .plate svg{width:100%;height:100%;display:block}
-.hero-card .body{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid var(--line)}
-.big{font:700 clamp(38px,4.2vw,56px)/1 var(--chelt);font-stretch:70%;font-variant-numeric:lining-nums tabular-nums}
-.big.save{color:var(--save)}
-@media (max-width:860px){.hero-grid{grid-template-columns:1fr}.hero-card{order:-1}}
+.hero-full{position:relative;min-height:min(94vh,980px);min-height:min(94svh,980px);display:flex;align-items:flex-end;overflow:hidden;background:#2A2E28;color:#fff}
+.hero-media{position:absolute;inset:0}
+.hero-media .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+.hero-media .slide.on{opacity:1}
+.hero-media img.art,.hero-media svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 50%}
+.hero-scrim{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,18,14,.42),rgba(14,18,14,0) 22%,rgba(14,18,14,0) 45%,rgba(14,18,14,.72))}
+.hero-inner{position:relative;width:100%;display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;padding-block:120px clamp(32px,5vw,64px)}
+.hero-copy{max-width:640px;min-width:0}
+.hero-full .eyebrow{color:rgba(255,255,255,.85)}
+.hero-full h1{font-size:clamp(44px,6.4vw,96px);color:#fff;margin-top:14px;text-shadow:0 2px 24px rgba(0,0,0,.25)}
+.hero-full h1 em{font-style:normal;color:#F6CBBE}
+.hero-full .sub{font-size:clamp(17px,1.6vw,21px);max-width:30em;margin-top:20px;color:rgba(255,255,255,.92)}
+.hero-full .ctas{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap}
+.btn.light{background:#fff;color:#151815;border-color:#fff}
+.btn.ghost.light{background:transparent;color:#fff;border-color:#fff}
+.hero-stats{display:flex;gap:28px;padding:18px 22px;background:rgba(18,22,18,.38);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.25)}
+.hero-stats .stat{display:grid;gap:4px}
+.hero-stats .big{color:#fff}
+.hero-stats .small{color:rgba(255,255,255,.8)}
 
 /* section */
 section.band{padding-block:clamp(48px,7vw,96px);border-top:1px solid var(--ink)}
@@ -286,20 +297,19 @@ img.art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fi
 </header>
 
 <main id="top">
-  <section class="hero wrap">
-    <div class="hero-grid">
-      <div>
+  <section class="hero-full" id="heroFull" aria-label="APT">
+    <div class="hero-media" id="heroPlate"></div>
+    <div class="hero-scrim"></div>
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
         <p class="eyebrow">Your AI apartment search assistant</p>
-        <h1 style="margin-top:14px">Find an apartment.<br><em>Not 500 of them.</em></h1>
+        <h1>Find an apartment.<br><em>Not 500 of them.</em></h1>
         <p class="sub">APT reads every listing, turns down nearly all of them, and shows you the few worth seeing.</p>
-        <div class="ctas"><a class="btn" href="#app">Start searching</a><a class="btn ghost" href="#demo">See APT in action</a></div>
+        <div class="ctas"><a class="btn light" href="#app">Start searching</a><a class="btn ghost light" href="#demo">See APT in action</a></div>
       </div>
-      <div class="hero-card" aria-label="Example result">
-        <div class="plate" id="heroPlate"></div>
-        <div class="body">
-          <div class="stat"><span class="eyebrow">APT found</span><span class="big"><span id="heroMatches">8</span> matches</span><span class="small muted" id="heroOf"></span></div>
-          <div class="stat"><span class="eyebrow">Saved you</span><span class="big save" id="heroSave"></span><span class="small muted">a year</span></div>
-        </div>
+      <div class="hero-stats" aria-label="Example result">
+        <div class="stat"><span class="eyebrow">APT found</span><span class="big"><span id="heroMatches">8</span> matches</span><span class="small" id="heroOf"></span></div>
+        <div class="stat"><span class="eyebrow">Saved you</span><span class="big" id="heroSave"></span><span class="small">a year</span></div>
       </div>
     </div>
   </section>
@@ -660,10 +670,11 @@ function plate(p){
   </svg>`;
 }
 
-const ART={hero:'a79ef013-5cca-4417-b943-789dd1ec63fc/0_1',larkspur:'a055922f-65d1-4b7a-ac29-47b98f39541c/0_1',ninebark:'7a57d0b3-3fb1-43c8-bae9-b38b60b9c62a/0_0',fieldstone:'d7938473-cdef-40c3-b0aa-427aa99d2c6c/0_1',juniper:'7460b79b-5315-40f9-af5f-716a8ccb4892/0_0',langdon:'ba9a0596-05f3-4bee-ae9e-315b7b9e39e8/0_1',thimble:'f8dc3fce-c03c-4157-a0a8-9adc7c033050/0_0',orchard:'da86de65-fbaa-481c-8de4-03648fbabdbc/0_1',bassett:'7a3af712-3a74-4257-aa0e-89896778c814/0_2',hartwell:'5e5498a6-f431-41a1-8ef3-d059479cec29/0_1',belvedere:'b051f3bc-44bc-4d5b-84a4-48b1d5c39aae/0_0'};
+const ART={wgold:'b617bdb1-74b0-4771-893a-f9fe13ca927b/0_1',wloft:'401003ef-8665-48f9-945b-aa3440b0fa88/0_3',wlake:'ee508815-a251-41e1-bac9-b76a71ce9471/0_1',wkitchen:'591197f0-d50d-42e8-9a35-8a28d5e1a3b4/0_1',hero:'a79ef013-5cca-4417-b943-789dd1ec63fc/0_1',larkspur:'a055922f-65d1-4b7a-ac29-47b98f39541c/0_1',ninebark:'7a57d0b3-3fb1-43c8-bae9-b38b60b9c62a/0_0',fieldstone:'d7938473-cdef-40c3-b0aa-427aa99d2c6c/0_1',juniper:'7460b79b-5315-40f9-af5f-716a8ccb4892/0_0',langdon:'ba9a0596-05f3-4bee-ae9e-315b7b9e39e8/0_1',thimble:'f8dc3fce-c03c-4157-a0a8-9adc7c033050/0_0',orchard:'da86de65-fbaa-481c-8de4-03648fbabdbc/0_1',bassett:'7a3af712-3a74-4257-aa0e-89896778c814/0_2',hartwell:'5e5498a6-f431-41a1-8ef3-d059479cec29/0_1',belvedere:'b051f3bc-44bc-4d5b-84a4-48b1d5c39aae/0_0'};
 /* On the live site (window.APT_IMAGES), use the Midjourney illustrations; elsewhere draw the SVG plate. */
-function pic(key,p){
-  if(ART[key]){const b=`https://cdn.midjourney.com/${ART[key]}`; return `<img class="art" src="${b}_1024_N.webp" srcset="${b}_1024_N.webp 1024w, ${b}_2048_N.webp 2048w" sizes="(max-width: 860px) 100vw, 66vw" alt="Illustration, not a listing photo" loading="lazy" decoding="async" onerror="this.outerHTML=window.__plateFallback('${key}')">`;}
+const HERO_SET=['wgold','wloft','wlake','wkitchen'];
+function pic(key,p,eager){
+  if(ART[key]){const b=`https://cdn.midjourney.com/${ART[key]}`; return `<img class="art" src="${b}_1024_N.webp" srcset="${b}_1024_N.webp 1024w, ${b}_2048_N.webp 2048w" sizes="${eager?'100vw':'(max-width: 860px) 100vw, 66vw'}" alt="Illustration, not a listing photo" loading="${eager?'eager':'lazy'}" decoding="async" onerror="this.outerHTML=window.__plateFallback('${key}')">`;}
   return plate(p);
 }
 window.__plateFallback = k => plate((byId(k)||L[0]).photo);
@@ -676,7 +687,11 @@ function sbars(s){return `<div class="sbars">${Object.entries(s).map(([k,v])=>`<
 /* ===================== MARKETING RENDER ===================== */
 function renderMarketing(){
   plateN=0;
-  document.getElementById('heroPlate').innerHTML = pic('hero',L[0].photo);
+  const hp=document.getElementById('heroPlate');
+  if(!hp.dataset.ready){hp.dataset.ready='1';
+    hp.innerHTML=HERO_SET.map((k,i)=>`<div class="slide${i?'':' on'}">${pic(k,(byId(k)||L[0]).photo,true)}</div>`).join('');
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches && HERO_SET.length>1){let n=0;setInterval(()=>{const sl=hp.querySelectorAll('.slide');if(!sl.length)return;sl[n].classList.remove('on');n=(n+1)%sl.length;sl[n].classList.add('on');},6500);}
+  }
   document.getElementById('heroOf').textContent = `of ${M.count.toLocaleString()} listings in ${M.name}`;
   document.getElementById('heroSave').textContent = money((trueCost(FAV)-trueCost(L[0]))*12);
   document.getElementById('demoMarketNote').textContent = `Sample market: ${M.name}. Change it inside the app below.`;
@@ -1075,6 +1090,9 @@ function parseTour(v){
 }
 
 document.getElementById('demoRun').addEventListener('click',()=>runDemo(true));
+(function(){const top=document.querySelector('.top'),hero=document.getElementById('heroFull');
+  const upd=()=>top.classList.toggle('solid', !hero || window.scrollY > hero.offsetHeight-70);
+  window.addEventListener('scroll',upd,{passive:true}); window.addEventListener('resize',upd); upd();})();
 renderMarketing(); renderGuides(); runDemo(false); renderApp();
 </script>
 
